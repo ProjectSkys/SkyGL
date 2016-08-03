@@ -11,7 +11,7 @@ bool initGLFW() {
     Window::hint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     Window::hint(GLFW_CONTEXT_VERSION_MINOR, 3);
     Window::hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    Window::hint(GLFW_RESIZABLE, GL_FALSE);
+    Window::hint(GLFW_RESIZABLE, GL_TRUE);
     return true;
 }
 
@@ -27,11 +27,6 @@ int main() {
     }
     Window window(WIDTH, HEIGHT, "basic/shader");
 
-    window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
-        if (key == GLFW_KEY_ESCAPE)
-            window.close();
-    });
     window.created.connect([&window]() {
         if (!initGLEW()) {
             std::cout << "Failed to initialize GLEW" << std::endl;
@@ -39,13 +34,21 @@ int main() {
         UInt width = window.getWidth(), height = window.getHeight();
         glViewport(0, 0, width, height);
     });
+    window.resized.connect([](int width, int height) {
+        glViewport(0, 0, width, height);
+    });
+    window.keypressed.connect([&window](Key key) {
+        std::cout << "Key: " << key << " " << key.code << std::endl;
+        if (key == GLFW_KEY_ESCAPE)
+            window.close();
+    });
 
     window.create();
 
     Shader shader("basic.vs", "basic.frag");
 
     // Set up vertex data (and buffer(s)) and attribute pointers
-    GLfloat vertices[] {
+    Float vertices[] {
         // Positions       // Colors
         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Right
        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // Bottom Left
@@ -59,9 +62,9 @@ int main() {
         VAO.buffer(VBO)
            .data(vertices, sizeof(vertices));
         VAO.attrib(0).has<Float>(3)
-           .offset(0).stride(SizeOf<6, Float>);
+           .stride(SizeOf<6, Float>).offset(0);
         VAO.attrib(1).has<Float>(3)
-           .offset(SizeOf<3, Float>).stride(SizeOf<6, Float>);
+           .stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
     VAO.unbind();
 
     window.loop([&]() {

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)
 
 project(SkyGL)
 
@@ -21,20 +21,20 @@ find_package(GLFW3 REQUIRED)
 find_package(X11 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(SOIL REQUIRED)
 find_package(ASSIMP REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED
-    COMPONENTS
-)
+find_package(Boost REQUIRED COMPONENTS)
 
 add_definitions(${OPENGL_DEFINITIONS})
 include_directories(
-    include
+    ${SRC_DIR}/include
     ${GLFW3_INCLUDE_DIR}
     ${X11_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIR}
+    ${SOIL_INCLUDE_DIR}
     ${ASSIMP_INCLUDE_DIR}
     ${Boost_INCLUDE_DIRS}
 )
@@ -43,6 +43,7 @@ set(DEPEND_LIBS
     ${X11_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARIES}
+    ${SOIL_LIBRARIES}
     ${ASSIMP_LIBRARIES}
     ${Boost_LIBRARIES}
 )

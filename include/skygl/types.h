@@ -23,6 +23,7 @@ using Double = GLdouble;
 
 using Bool = GLboolean;
 using Char = GLchar;
+using UChar = GLubyte;
 using Size = GLsizei;
 using Enum = GLenum;
 
@@ -30,6 +31,8 @@ using Void = GLvoid;
 
 using VoidPtr = Void*;
 using CharPtr = Char*;
+using BytePtr = Byte*;
+using UBytePtr = UByte*;
 
 using SizeT = std::size_t;
 using String = std::string;

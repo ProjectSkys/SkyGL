@@ -11,7 +11,7 @@ bool initGLFW() {
     Window::hint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     Window::hint(GLFW_CONTEXT_VERSION_MINOR, 3);
     Window::hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    Window::hint(GLFW_RESIZABLE, GL_FALSE);
+    Window::hint(GLFW_RESIZABLE, GL_TRUE);
     return true;
 }
 
@@ -27,17 +27,20 @@ int main() {
     }
     Window window(WIDTH, HEIGHT, "basic/shader");
 
-    window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
-        if (key == GLFW_KEY_ESCAPE)
-            window.close();
-    });
     window.created.connect([&window]() {
         if (!initGLEW()) {
             std::cout << "Failed to initialize GLEW" << std::endl;
         }
         Int width = window.getWidth(), height = window.getHeight();
         glViewport(0, 0, width, height);
+    });
+    window.resized.connect([](int width, int height) {
+        glViewport(0, 0, width, height);
+    });
+    window.keypressed.connect([&window](Key key) {
+        std::cout << "Key: " << key << " " << key.code << std::endl;
+        if (key == GLFW_KEY_ESCAPE)
+            window.close();
     });
 
     window.create();

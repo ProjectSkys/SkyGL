@@ -16,7 +16,7 @@ public:
     ~Buffer() {
         glDeleteBuffers(1, &_id);
     }
-    UInt getID() const {
+    UInt getId() const {
         return _id;
     }
 };
@@ -30,10 +30,10 @@ public:
     }
 };
 
-class ElementArrayBuffer: public Buffer {
+class ElementBuffer: public Buffer {
 public:
-    ElementArrayBuffer() {}
-    const ElementArrayBuffer& data(VoidPtr dat, UInt size) const {
+    ElementBuffer() {}
+    const ElementBuffer& data(VoidPtr dat, UInt size) const {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, dat, GL_STATIC_DRAW);
         return *this;
     }
@@ -68,10 +68,10 @@ public:
         return *this;
     }
     Attrib& offset(SizeT offset) {
-        _pointer = (Void*)offset;
+        _pointer = reinterpret_cast<VoidPtr>(offset);
         return *this;
     }
-    Attrib& pointer(Void* pointer) {
+    Attrib& pointer(VoidPtr pointer) {
         _pointer = pointer;
         return *this;
     }
@@ -96,11 +96,11 @@ public:
         return *this;
     }
     const ArrayBuffer& buffer(const ArrayBuffer& abuf) const {
-        glBindBuffer(GL_ARRAY_BUFFER, abuf.getID());
+        glBindBuffer(GL_ARRAY_BUFFER, abuf.getId());
         return abuf;
     }
-    const ElementArrayBuffer& buffer(const ElementArrayBuffer& ebuf) const {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuf.getID());
+    const ElementBuffer& buffer(const ElementBuffer& ebuf) const {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuf.getId());
         return ebuf;
     }
     Attrib attrib(UInt idx) const {

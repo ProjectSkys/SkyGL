@@ -8,6 +8,7 @@
 #include <skygl/gl.h>
 #include <skygl/shader.h>
 #include <skygl/buffer.h>
+#include <skygl/texture.h>
 
 #include <skygl/window.h>
 

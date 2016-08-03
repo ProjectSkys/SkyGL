@@ -18,12 +18,14 @@ public:
     Shader(KStringRef vertexPath, KStringRef fragmentPath, KStringRef geometryPath = "") {
         _compile(vertexPath, fragmentPath, geometryPath);
     }
-    void use() const {
+    const Shader& use() const {
         glUseProgram(_program);
+        return *this;
     }
-    void uniform(KStringRef name, Int value) const {
+    const Shader& uniform(KStringRef name, Int value) const {
         UInt loc = glGetUniformLocation(_program, name.c_str());
         glUniform1i(loc, value);
+        return *this;
     }
 private:
     void _compile(KStringRef vertexPath, KStringRef fragmentPath, KStringRef geometryPath = "") {
