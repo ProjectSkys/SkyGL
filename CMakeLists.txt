@@ -29,7 +29,8 @@ find_package(Boost REQUIRED
 )
 
 add_definitions(${OPENGL_DEFINITIONS})
-include_directories(include
+include_directories(
+    include
     ${GLFW3_INCLUDE_DIR}
     ${X11_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
@@ -38,11 +39,11 @@ include_directories(include
     ${Boost_INCLUDE_DIRS}
 )
 set(DEPEND_LIBS
-    ${GLFW3_LIBRARY}
+    ${GLFW3_LIBRARIES}
     ${X11_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${GLEW_LIBRARY}
-    ${ASSIMP_LIBRARY}
+    ${GLEW_LIBRARIES}
+    ${ASSIMP_LIBRARIES}
     ${Boost_LIBRARIES}
 )
 

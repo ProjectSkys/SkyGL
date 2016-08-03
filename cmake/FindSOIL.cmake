@@ -1,6 +1,6 @@
 # - Locate SOIL library
 # This module defines
-# SOIL_LIBRARY, the name of the library to link against
+# SOIL_LIBRARIES, the name of the library to link against
 # SOIL_FOUND
 # SOIL_INCLUDE_DIR, where to find SOIL.h
 # To Adding search path, set SOIL_ROOT_DIR as follows
