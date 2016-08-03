@@ -4,9 +4,11 @@
 #include <skygl/types.h>
 #include <skygl/gl.h>
 
+#include <boost/noncopyable.hpp>
+
 NS_SKY_GL_BEG
 
-class Buffer {
+class Buffer: public boost::noncopyable {
 protected:
     UInt _id;
 public:
@@ -77,7 +79,7 @@ public:
     }
 };
 
-class VertexArray {
+class VertexArray: public boost::noncopyable {
 private:
     UInt _id;
 public:

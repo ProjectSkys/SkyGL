@@ -69,7 +69,7 @@ int main() {
         VAO.buffer(VBO)
            .data(vertices, sizeof(vertices));
         VAO.buffer(EBO)
-            .data(indices, sizeof(indices));
+           .data(indices, sizeof(indices));
         VAO.attrib(0).has<Float>(3)
            .stride(SizeOf<8, Float>).offset(0);
         VAO.attrib(1).has<Float>(3)
@@ -78,37 +78,31 @@ int main() {
            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
     VAO.unbind();
 
-    std::vector<Texture2D> textures;
+    std::vector<Texture2D> textures(2);
     std::vector<String> paths {
         "res/textures/container.jpg",
         "res/textures/awesomeface.png"
     };
-    for (auto&& path : paths) {
-        Image img = Image::fromFile(path);
-        Texture2D tex;
-        tex.bind();
-            tex.param(GL_TEXTURE_WRAP_S, GL_REPEAT);
-            tex.param(GL_TEXTURE_WRAP_T, GL_REPEAT);
-            tex.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            tex.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            tex.load(img);
-            tex.genMipmap();
-        tex.unbind();
-        textures.push_back(tex);
+    for (SizeT i = 0; i < textures.size(); ++i) {
+        textures[i]
+            .bind()
+               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+               .load(Image(paths[i]))
+               .genMipmap()
+           .unbind();
     }
 
     window.loop([&]() {
         glfwPollEvents();
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        textures[0].attach(0).bind();
-            shader.uniform("ourTexture1", 0);
-        textures[0].unbind();
-        textures[1].attach(1).bind();
-            shader.uniform("ourTexture2", 1);
-        textures[1].unbind();
-
+        for (SizeT i = 0; i < textures.size(); ++i) {
+            textures[i].attach(i).bind();
+            shader.uniform("tex" + std::to_string(i), i);
+        }
         shader.use();
         VAO.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

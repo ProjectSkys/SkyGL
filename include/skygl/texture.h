@@ -2,21 +2,25 @@
 
 #include <skygl/common.h>
 #include <skygl/types.h>
+#include <skygl/error.h>
 #include <skygl/gl.h>
+
+#include <boost/noncopyable.hpp>
 
 #include <SOIL/SOIL.h>
 
 NS_SKY_GL_BEG
 
-class Image {
+class Image: boost::noncopyable {
 private:
     Int _width, _height;
     UBytePtr _data;
 public:
-    static Image fromFile(KStringRef path) {
-        Image img;
-        img._data = SOIL_load_image(path.c_str(), &img._width, &img._height, 0, SOIL_LOAD_RGB);
-        return img;
+    Image(KStringRef path) {
+        _data = SOIL_load_image(path.c_str(), &_width, &_height, 0, SOIL_LOAD_RGB);
+        if (_data == nullptr) {
+            throw GLException("Image::Image(path)", "Can not load " + path);
+        }
     }
     ~Image() {
         SOIL_free_image_data(_data);
@@ -24,12 +28,10 @@ public:
     void use(Enum textureType) const {
         glTexImage2D(textureType, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
     }
-private:
-    Image() = default;
 };
 
 template <Enum TextureType = GL_TEXTURE_2D>
-class Texture {
+class Texture: public boost::noncopyable {
 private:
     UInt _id;
     UInt _active;
