@@ -19,7 +19,9 @@ using UInt64 = GLuint64;
 
 using Half = GLhalf;
 using Float = GLfloat;
+using ClampF = GLclampf;
 using Double = GLdouble;
+using ClampD = GLclampd;
 
 using Bool = GLboolean;
 using Char = GLchar;

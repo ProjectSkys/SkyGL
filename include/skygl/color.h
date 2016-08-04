@@ -3,10 +3,11 @@
 #include <skygl/common.h>
 #include <skygl/types.h>
 
-#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 
 NS_SKY_GL_BEG
 
-using ColorRGB = glm::tvec3<UChar, glm::lowp>;
+using ColorRGB = glm::tvec3<ClampF, glm::mediump>;
+using ColorRGBA = glm::tvec4<ClampF, glm::mediump>;
 
 NS_SKY_GL_END
