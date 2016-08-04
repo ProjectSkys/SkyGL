@@ -3,8 +3,9 @@
 #include <skygl/common.h>
 #include <skygl/types.h>
 #include <skygl/error.h>
-#include <skygl/gl.h>
 #include <skygl/utils.h>
+#include <skygl/gl.h>
+#include <skygl/math.h>
 
 #include <string>
 #include <iostream>
@@ -18,6 +19,9 @@ public:
     Shader(KStringRef vertexPath, KStringRef fragmentPath, KStringRef geometryPath = "") {
         _compile(vertexPath, fragmentPath, geometryPath);
     }
+    UInt getID() const {
+        return _program;
+    }
     const Shader& use() const {
         glUseProgram(_program);
         return *this;
@@ -25,6 +29,11 @@ public:
     const Shader& uniform(KStringRef name, Int value) const {
         UInt loc = glGetUniformLocation(_program, name.c_str());
         glUniform1i(loc, value);
+        return *this;
+    }
+    const Shader& uniform(KStringRef name, const Mat4& value) const {
+        UInt loc = glGetUniformLocation(_program, name.c_str());
+        glUniformMatrix4fv(loc, 1, False, glm::value_ptr(value));
         return *this;
     }
 private:

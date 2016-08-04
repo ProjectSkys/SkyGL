@@ -5,6 +5,9 @@
 #include <skygl/error.h>
 #include <skygl/utils.h>
 
+#include <skygl/color.h>
+#include <skygl/math.h>
+
 #include <skygl/gl.h>
 #include <skygl/shader.h>
 #include <skygl/buffer.h>

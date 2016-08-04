@@ -23,9 +23,10 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SOIL REQUIRED)
 find_package(ASSIMP REQUIRED)
+find_package(GLM REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS)
+find_package(Boost REQUIRED)
 
 add_definitions(${OPENGL_DEFINITIONS})
 include_directories(
@@ -36,6 +37,7 @@ include_directories(
     ${GLEW_INCLUDE_DIR}
     ${SOIL_INCLUDE_DIR}
     ${ASSIMP_INCLUDE_DIR}
+    ${GLM_INCLUDE_DIR}
     ${Boost_INCLUDE_DIRS}
 )
 set(DEPEND_LIBS
@@ -48,9 +50,8 @@ set(DEPEND_LIBS
     ${Boost_LIBRARIES}
 )
 
-add_library(skygl STATIC
-    src/window.cpp
-)
+file(GLOB srcs "${SRC_DIR}/src/*.cpp")
+add_library(skygl STATIC ${srcs})
 set(SKYGL_LIBRARY skygl)
 
 set(LIBS ${SKYGL_LIBRARY} ${DEPEND_LIBS})

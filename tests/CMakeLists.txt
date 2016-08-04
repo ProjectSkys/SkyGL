@@ -1,10 +1,19 @@
 
-set(SUITES basic)
-set(basic hello shader texture)
-
 set(CUR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-foreach(suite ${SUITES})
+file(GLOB items RELATIVE "${CUR_DIR}" "${CUR_DIR}/*")
+foreach(suite ${items})
+    if(IS_DIRECTORY "${CUR_DIR}/${suite}")
+        list(APPEND suites ${suite})
+        file(GLOB units RELATIVE "${CUR_DIR}/${suite}" "${CUR_DIR}/${suite}/*")
+        foreach(unit ${units})
+            list(APPEND ${suite} ${unit})
+        endforeach()
+    endif()
+endforeach()
+list(REMOVE_ITEM suites res)
+
+foreach(suite ${suites})
     add_custom_target(${suite}
         COMMAND ln -sf ${CUR_DIR}/res/ ${BIN_DIR}/${suite})
     foreach(unit ${${suite}})
@@ -34,6 +43,6 @@ foreach(suite ${SUITES})
             WORKING_DIRECTORY "${BIN_DIR}/${suite}"
             DEPENDS ${unit}
         )
-    endforeach(unit)
-endforeach(suite)
+    endforeach()
+endforeach()
 

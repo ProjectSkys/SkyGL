@@ -5,7 +5,7 @@
 
 using namespace sky::gl;
 
-const String NAME = "texture";
+const String NAME = "transform";
 const UInt WIDTH = 800, HEIGHT = 600;
 
 bool initGLFW() {
@@ -103,7 +103,15 @@ int main() {
             textures[i].attach(i).bind();
             shader.uniform("tex" + std::to_string(i), i);
         }
+
         shader.use();
+
+        Mat4 transform;
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (Float)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        shader.uniform("transform", transform);
+
         VAO.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         VAO.unbind();

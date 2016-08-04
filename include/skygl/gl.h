@@ -9,12 +9,17 @@
 
 NS_SKY_GL_BEG
 
-void glClearColor(const ColorRGB& rgb) {
-    glClearColor(rgb.r, rgb.g, rgb.b, 1.0f);
+inline void glClearColorBuffer(ClampF r = 0, ClampF g = 0, ClampF b = 0, ClampF a = 1) {
+    glClearColor(r, g, b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void glClearColor(const ColorRGBA& rgba) {
-    glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
+inline void glClearColorBuffer(const ColorRGB& rgb) {
+    glClearColorBuffer(rgb.r, rgb.g, rgb.b);
+}
+
+inline void glClearColorBuffer(const ColorRGBA& rgba) {
+    glClearColorBuffer(rgba.r, rgba.g, rgba.b, rgba.a);
 }
 
 NS_SKY_GL_END

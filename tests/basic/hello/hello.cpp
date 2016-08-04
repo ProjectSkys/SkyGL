@@ -4,6 +4,7 @@
 
 using namespace sky::gl;
 
+const String NAME = "shader";
 const UInt WIDTH = 800, HEIGHT = 600;
 
 bool initGLFW() {
@@ -25,7 +26,7 @@ int main() {
         std::cout << "Failed to initialize GLFW" << std::endl;
         return -1;
     }
-    Window window(WIDTH, HEIGHT, "basic/shader");
+    Window window(WIDTH, HEIGHT, "basic/" + NAME);
 
     window.created.connect([&window]() {
         if (!initGLEW()) {
@@ -47,8 +48,7 @@ int main() {
 
     window.loop([]() {
         glfwPollEvents();
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
     });
 
     glfwTerminate();
