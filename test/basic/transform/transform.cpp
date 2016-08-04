@@ -47,7 +47,7 @@ int main() {
 
     window.create();
 
-    Shader shader(NAME + ".vs", NAME + ".frag");
+    Program program(NAME + ".vs", NAME + ".frag");
 
     // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
@@ -101,17 +101,16 @@ int main() {
         glClearColorBuffer();
         for (SizeT i = 0; i < textures.size(); ++i) {
             textures[i].attach(i).bind();
-            shader.uniform("tex" + std::to_string(i), i);
+            program.uniform("tex" + std::to_string(i), i);
         }
-
-        shader.use();
 
         Mat4 transform;
         transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
         transform = glm::rotate(transform, (Float)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
-        shader.uniform("transform", transform);
+        program.uniform("transform", transform);
 
+        program.use();
         VAO.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         VAO.unbind();

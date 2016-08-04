@@ -15,8 +15,17 @@ public:
     Buffer() {
         glGenBuffers(1, &_id);
     }
+    Buffer(Buffer&& buf) {
+        _id = buf._id;
+        buf._id = 0;
+    }
     ~Buffer() {
-        glDeleteBuffers(1, &_id);
+        if (_id) glDeleteBuffers(1, &_id);
+    }
+    Buffer& operator = (Buffer&& buf) {
+        _id = buf._id;
+        buf._id = 0;
+        return *this;
     }
     UInt getId() const {
         return _id;
@@ -25,7 +34,6 @@ public:
 
 class ArrayBuffer: public Buffer {
 public:
-    ArrayBuffer() {}
     const ArrayBuffer& data(VoidPtr dat, UInt size) const {
         glBufferData(GL_ARRAY_BUFFER, size, dat, GL_STATIC_DRAW);
         return *this;
@@ -34,7 +42,6 @@ public:
 
 class ElementBuffer: public Buffer {
 public:
-    ElementBuffer() {}
     const ElementBuffer& data(VoidPtr dat, UInt size) const {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, dat, GL_STATIC_DRAW);
         return *this;
@@ -86,8 +93,17 @@ public:
     VertexArray() {
         glGenVertexArrays(1, &_id);
     }
+    VertexArray(VertexArray&& va) {
+        _id = va._id;
+        va._id = 0;
+    }
     ~VertexArray() {
-        glDeleteVertexArrays(1, &_id);
+        if (_id) glDeleteVertexArrays(1, &_id);
+    }
+    VertexArray& operator = (VertexArray&& va) {
+        _id = va._id;
+        va._id = 0;
+        return *this;
     }
     const VertexArray& bind() const {
         glBindVertexArray(_id);

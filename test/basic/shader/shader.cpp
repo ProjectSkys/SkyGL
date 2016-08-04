@@ -46,7 +46,7 @@ int main() {
 
     window.create();
 
-    Shader shader(NAME + ".vs", NAME + ".frag");
+    Program program(NAME + ".vs", NAME + ".frag");
 
     // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
@@ -71,7 +71,7 @@ int main() {
     window.loop([&]() {
         glfwPollEvents();
         glClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
-        shader.use();
+        program.use();
         VAO.bind();
             glDrawArrays(GL_TRIANGLES, 0, 3);
         VAO.unbind();
