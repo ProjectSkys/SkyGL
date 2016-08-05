@@ -44,9 +44,9 @@ public:
     using KeyboardSignal = Signal<void(Key)>;
 
 private:
+    GLFWwindow* _window;
     UInt _width, _height;
     String _title;
-    GLFWwindow* _window;
 public:
     CreatedSignal created;
 

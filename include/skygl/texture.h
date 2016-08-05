@@ -13,8 +13,8 @@ NS_SKY_GL_BEG
 
 class Image: boost::noncopyable {
 private:
-    Int _width, _height;
     UBytePtr _data;
+    Int _width, _height;
 public:
     Image(KStringRef path) {
         _data = SOIL_load_image(path.c_str(), &_width, &_height, 0, SOIL_LOAD_RGB);
@@ -23,7 +23,21 @@ public:
         }
     }
     ~Image() {
-        SOIL_free_image_data(_data);
+        if (_data) SOIL_free_image_data(_data);
+    }
+    Image(Image&& img) {
+        _data = img._data;
+        _width = img._width;
+        _height = img._height;
+        img._data = 0;
+    }
+    Image& operator = (Image&& img) {
+        if (this == &img) return *this;
+        _data = img._data;
+        _width = img._width;
+        _height = img._height;
+        img._data = 0;
+        return *this;
     }
     void use(Enum textureType) const {
         glTexImage2D(textureType, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
@@ -40,7 +54,19 @@ public:
         glGenTextures(1, &_id);
     }
     ~Texture() {
-        glDeleteTextures(1, &_id);
+        if (_id) glDeleteTextures(1, &_id);
+    }
+    Texture(Texture&& tex) {
+        _id = tex._id;
+        _active = tex._active;
+        tex._id = 0;
+    }
+    Texture& operator = (Texture&& tex) {
+        if (this == &tex) return *this;
+        _id = tex._id;
+        _active = tex._active;
+        tex._id = 0;
+        return *this;
     }
     UInt getId() const {
         return _id;

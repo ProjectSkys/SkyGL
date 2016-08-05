@@ -15,14 +15,15 @@ public:
     Buffer() {
         glGenBuffers(1, &_id);
     }
+    ~Buffer() {
+        if (_id) glDeleteBuffers(1, &_id);
+    }
     Buffer(Buffer&& buf) {
         _id = buf._id;
         buf._id = 0;
     }
-    ~Buffer() {
-        if (_id) glDeleteBuffers(1, &_id);
-    }
     Buffer& operator = (Buffer&& buf) {
+        if (this == &buf) return *this;
         _id = buf._id;
         buf._id = 0;
         return *this;
@@ -93,14 +94,15 @@ public:
     VertexArray() {
         glGenVertexArrays(1, &_id);
     }
+    ~VertexArray() {
+        if (_id) glDeleteVertexArrays(1, &_id);
+    }
     VertexArray(VertexArray&& va) {
         _id = va._id;
         va._id = 0;
     }
-    ~VertexArray() {
-        if (_id) glDeleteVertexArrays(1, &_id);
-    }
     VertexArray& operator = (VertexArray&& va) {
+        if (this == &va) return *this;
         _id = va._id;
         va._id = 0;
         return *this;

@@ -10,25 +10,39 @@
 #include <string>
 #include <iostream>
 
+#include <boost/noncopyable.hpp>
+
 NS_SKY_GL_BEG
 
 class Program;
 
 template <Enum ShaderType>
-class Shader {
+class Shader: boost::noncopyable {
 private:
     UInt _id;
     Bool _compiled;
 public:
-    Shader()
-        : _id(glCreateShader(ShaderType))
-        , _compiled(False) {}
+    Shader(): _compiled(False) {
+        _id = glCreateShader(ShaderType);
+    }
     Shader(KStringRef path): Shader() {
         source(readFileFromPath(path));
         compile();
     }
     ~Shader() {
-        glDeleteShader(_id);
+        if (_id) glDeleteShader(_id);
+    }
+    Shader(Shader&& shader) {
+        _id = shader._id;
+        _compiled = shader._compiled;
+        shader._id = 0;
+    }
+    Shader& operator = (Shader&& shader) {
+        if (this == &shader) return *this;
+        _id = shader._id;
+        _compiled = shader._compiled;
+        shader._id = 0;
+        return *this;
     }
     UInt getId() const {
         return _id;
@@ -67,9 +81,9 @@ private:
     UInt _id;
     Bool _linked;
 public:
-    Program()
-        : _id(glCreateProgram())
-        , _linked(False) {}
+    Program(): _linked(False) {
+        _id = glCreateProgram();
+    }
     Program(KStringRef vertexPath, KStringRef fragmentPath): Program() {
         VertexShader vertex(vertexPath);
         FragmentShader fragment(fragmentPath);
@@ -86,14 +100,18 @@ public:
         attach(geometry);
         link();
     }
+    ~Program() {
+        if (_id) glDeleteProgram(_id);
+    }
     Program(Program&& prog) {
         _id = prog._id;
+        _linked = prog._linked;
         prog._id = 0;
     }
-    ~Program() {
-    }
     Program& operator = (Program&& prog) {
+        if (this == &prog) return *this;
         _id = prog._id;
+        _linked = prog._linked;
         prog._id = 0;
         return *this;
     }
