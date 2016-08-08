@@ -1,11 +1,11 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
-#include <skygl/error.h>
-#include <skygl/utils.h>
-#include <skygl/gl.h>
-#include <skygl/math.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
+#include <skygl/basic/utils.h>
+#include <skygl/calc/math.h>
+#include <skygl/gl/gl.h>
 
 #include <string>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "skygl/color.h"
+#include "skygl/calc/color.h"
 
 NS_SKY_GL_BEG
 

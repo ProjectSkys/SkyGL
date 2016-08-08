@@ -1,17 +1,18 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
-#include <skygl/error.h>
-#include <skygl/utils.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
+#include <skygl/basic/utils.h>
 
-#include <skygl/color.h>
-#include <skygl/math.h>
+#include <skygl/calc/color.h>
+#include <skygl/calc/math.h>
 
-#include <skygl/gl.h>
-#include <skygl/shader.h>
-#include <skygl/buffer.h>
-#include <skygl/texture.h>
+#include <skygl/gl/gl.h>
+#include <skygl/gl/shader.h>
+#include <skygl/gl/buffer.h>
+#include <skygl/gl/texture.h>
 
-#include <skygl/window.h>
+#include <skygl/gui/window.h>
+#include <skygl/gui/camera.h>
 

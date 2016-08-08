@@ -1,9 +1,9 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
-#include <skygl/error.h>
-#include <skygl/gl.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
+#include <skygl/gl/gl.h>
 
 #include <boost/noncopyable.hpp>
 
@@ -39,7 +39,7 @@ public:
         img._data = 0;
         return *this;
     }
-    void use(Enum textureType) const {
+    void toTexture(Enum textureType) const {
         glTexImage2D(textureType, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
     }
 };
@@ -94,7 +94,7 @@ public:
         return *this;
     }
     const Texture& load(const Image& img) const {
-        img.use(TextureType);
+        img.toTexture(TextureType);
         return *this;
     }
     const Texture& genMipmap() const {

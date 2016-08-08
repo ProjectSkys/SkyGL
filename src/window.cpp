@@ -1,5 +1,5 @@
 
-#include "skygl/window.h"
+#include "skygl/gui/window.h"
 
 NS_SKY_GL_BEG
 

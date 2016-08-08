@@ -1,9 +1,9 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
-#include <skygl/error.h>
-#include <skygl/gl.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
+#include <skygl/gl/gl.h>
 
 #include <functional>
 #include <memory>
@@ -33,15 +33,14 @@ private:
     using Signal = boost::signals2::signal<Slot>;
 public:
     using CreatedSignal = Signal<void()>;
-
     using MoveSignal = Signal<void(int, int)>;
     using ResizeSignal = Signal<void(int, int)>;
     using CloseSignal = Signal<void()>;
     using RefreshSignal = Signal<void()>;
     using FocusSignal = Signal<void()>;
     using IconifySignal = Signal<void()>;
-
     using KeyboardSignal = Signal<void(Key)>;
+    using MouseSignal = Signal<void(double, double)>;
 
 private:
     GLFWwindow* _window;
@@ -49,7 +48,6 @@ private:
     String _title;
 public:
     CreatedSignal created;
-
     MoveSignal moved;
     ResizeSignal resized;
     CloseSignal on_close;
@@ -59,10 +57,11 @@ public:
     IconifySignal iconified;
     IconifySignal restored;
     ResizeSignal bf_resized;
-
     KeyboardSignal keypressed;
     KeyboardSignal keyrepeated;
     KeyboardSignal keyreleased;
+    MouseSignal mousemoved;
+    MouseSignal mousescrolled;
 
 public:
     Window(UInt width = 800, UInt height = 600, KStringRef title = "SkyGL")
@@ -108,6 +107,8 @@ public:
         glfwSetWindowIconifyCallback(_window, _iconify_callback);
         glfwSetFramebufferSizeCallback(_window, _bf_size_callback);
         glfwSetKeyCallback(_window, _key_callback);
+        glfwSetCursorPosCallback(_window, _cursor_callback);
+        glfwSetScrollCallback(_window, _scroll_callback);
         created();
     }
     void current() {
@@ -200,6 +201,14 @@ private:
             default:
                 break;
         }
+    }
+    static void _cursor_callback(GLFWwindow* raw, double xpos, double ypos) {
+        Window* window = _raw2window[raw];
+        window->mousemoved(xpos, ypos);
+    }
+    static void _scroll_callback(GLFWwindow* raw, double xoffset, double yoffset) {
+        Window* window = _raw2window[raw];
+        window->mousescrolled(xoffset, yoffset);
     }
 };
 

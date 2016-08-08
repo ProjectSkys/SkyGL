@@ -1,8 +1,8 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
-#include <skygl/color.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/calc/color.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

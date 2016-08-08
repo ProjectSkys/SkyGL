@@ -1,6 +1,6 @@
 #pragma once
 
-#include <skygl/common.h>
+#include <skygl/basic/common.h>
 
 #include <string>
 #include <GL/glew.h>

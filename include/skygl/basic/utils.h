@@ -1,7 +1,7 @@
 #pragma once
 
-#include <skygl/common.h>
-#include <skygl/types.h>
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
 
 #include <fstream>
 #include <streambuf>

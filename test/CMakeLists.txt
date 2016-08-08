@@ -17,15 +17,16 @@ foreach(suite ${suites})
     add_custom_target(${suite}
         COMMAND ln -sf ${CUR_DIR}/res/ ${BIN_DIR}/${suite})
     foreach(unit ${${suite}})
+        string(REGEX REPLACE "[0-9]*\\." "" exe ${unit})
         file(GLOB sources
             "${CUR_DIR}/${suite}/${unit}/*.h"
             "${CUR_DIR}/${suite}/${unit}/*.cpp"
         )
-        add_executable(${unit} ${sources})
-        add_dependencies(${unit} ${suite})
-        set_target_properties(${unit} PROPERTIES
+        add_executable(${exe} ${sources})
+        add_dependencies(${exe} ${suite})
+        set_target_properties(${exe} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${BIN_DIR}/${suite}")
-        target_link_libraries(${unit} ${LIBS})
+        target_link_libraries(${exe} ${LIBS})
 
         file(GLOB shaders
             "${CUR_DIR}/${suite}/${unit}/*.vs"
@@ -38,10 +39,10 @@ foreach(suite ${suites})
             configure_file(${shader} ${output} COPYONLY)
         endforeach(shader)
 
-        add_custom_target(${suite}-${unit}
-            COMMAND "${unit}"
+        add_custom_target(${suite}-${exe}
+            COMMAND "${exe}"
             WORKING_DIRECTORY "${BIN_DIR}/${suite}"
-            DEPENDS ${unit}
+            DEPENDS ${exe}
         )
     endforeach()
 endforeach()
