@@ -33,7 +33,7 @@ IF (WIN32)
 		)
 	ENDIF(NV_SYSTEM_PROCESSOR STREQUAL "AMD64")
 ELSE (WIN32)
-    FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h
+	FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h
 		/usr/include
 		/usr/local/include
 		/sw/include
