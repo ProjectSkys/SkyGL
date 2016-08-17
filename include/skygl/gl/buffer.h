@@ -8,7 +8,7 @@
 
 NS_SKY_GL_BEG
 
-class Buffer: public boost::noncopyable {
+class Buffer: private boost::noncopyable {
 protected:
     UInt _id;
 public:
@@ -87,7 +87,7 @@ public:
     }
 };
 
-class VertexArray: public boost::noncopyable {
+class VertexArray: private boost::noncopyable {
 private:
     UInt _id;
 public:

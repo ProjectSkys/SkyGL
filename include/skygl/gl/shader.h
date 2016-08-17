@@ -17,7 +17,7 @@ NS_SKY_GL_BEG
 class Program;
 
 template <Enum ShaderType>
-class Shader: boost::noncopyable {
+class Shader: private boost::noncopyable {
 private:
     UInt _id;
     Bool _compiled;
@@ -76,7 +76,7 @@ using VertexShader = Shader<GL_VERTEX_SHADER>;
 using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
 using GeometryShader = Shader<GL_GEOMETRY_SHADER>;
 
-class Program: boost::noncopyable {
+class Program: private boost::noncopyable {
 private:
     UInt _id;
     Bool _linked;

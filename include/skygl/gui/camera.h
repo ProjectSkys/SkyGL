@@ -5,4 +5,8 @@
 
 NS_SKY_GL_BEG
 
+class Camera {
+
+};
+
 NS_SKY_GL_END

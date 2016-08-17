@@ -11,7 +11,7 @@
 
 NS_SKY_GL_BEG
 
-class Image: boost::noncopyable {
+class Image: private boost::noncopyable {
 private:
     UBytePtr _data;
     Int _width, _height;
@@ -45,7 +45,7 @@ public:
 };
 
 template <Enum TextureType = GL_TEXTURE_2D>
-class Texture: public boost::noncopyable {
+class Texture: private boost::noncopyable {
 private:
     UInt _id;
     UInt _active;

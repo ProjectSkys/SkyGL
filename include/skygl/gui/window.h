@@ -27,7 +27,7 @@ public:
     }
 };
 
-class Window {
+class Window: private boost::noncopyable {
 private:
     template <class Slot>
     using Signal = boost::signals2::signal<Slot>;
@@ -65,9 +65,13 @@ public:
 
 public:
     Window(UInt width = 800, UInt height = 600, KStringRef title = "SkyGL")
-        : _width(width)
+        : _window(nullptr)
+        , _width(width)
         , _height(height)
         , _title(title) {}
+    ~Window() {
+        if (_window) close();
+    }
     UInt getWidth() const {
         return _width;
     }
