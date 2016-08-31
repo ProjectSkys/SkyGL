@@ -4,28 +4,15 @@
 #include <skygl/basic/types.h>
 #include <skygl/basic/error.h>
 #include <skygl/gl/gl.h>
+#include <skygl/ui/key.h>
 
-#include <functional>
-#include <memory>
 #include <map>
+#include <memory>
+#include <functional>
 
 #include <boost/signals2.hpp>
 
 NS_SKY_GL_BEG
-
-class Key {
-public:
-    int id;
-    int code;
-    int action;
-    int mode;
-public:
-    Key(int id, int code, int action, int mode)
-        : id(id), code(code), action(action) , mode(mode) {}
-    operator int() const {
-        return id;
-    }
-};
 
 class Window: private boost::noncopyable {
 private:
@@ -70,7 +57,7 @@ public:
         , _height(height)
         , _title(title) {}
     ~Window() {
-        if (_window) close();
+        if (_window) destroy();
     }
     UInt getWidth() const {
         return _width;
@@ -142,6 +129,9 @@ public:
             swapBuffers();
         }
         destroy();
+    }
+    void setInputMode(int mode, int value) {
+        glfwSetInputMode(_window, mode, value);
     }
     static void resetHints() {
         glfwDefaultWindowHints();
@@ -215,5 +205,7 @@ private:
         window->mousescrolled(xoffset, yoffset);
     }
 };
+
+using WindowPtr = std::shared_ptr<Window>;
 
 NS_SKY_GL_END

@@ -13,6 +13,7 @@
 #include <skygl/gl/buffer.h>
 #include <skygl/gl/texture.h>
 
-#include <skygl/gui/window.h>
-#include <skygl/gui/camera.h>
+#include <skygl/ui/window.h>
+#include <skygl/ui/camera.h>
+#include <skygl/ui/manipulator.h>
 
