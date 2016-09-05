@@ -1,7 +1,7 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
 
 #include <fstream>
 #include <streambuf>
@@ -11,7 +11,7 @@
 NS_SKY_GL_BEG
 
 #define SKY_PROPERTY(type, name) \
-    private: \
+    protected: \
         type name; \
     public: \
         void set##name(const type& _) { \
@@ -23,7 +23,7 @@ NS_SKY_GL_BEG
     private:
 
 #define SKY_PROPERTY_R(type, name) \
-    private: \
+    protected: \
         type name; \
     public: \
         type get##name() const { \
@@ -32,7 +32,7 @@ NS_SKY_GL_BEG
     private:
 
 #define SKY_PROPERTY_W(type, name) \
-    private: \
+    protected: \
         type name; \
     public: \
         void set##name(const type& _) { \

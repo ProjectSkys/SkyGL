@@ -1,8 +1,8 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/calc/math.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/calc/math.h"
 
 #include <functional>
 
@@ -33,6 +33,9 @@ public:
     Vec3 getLeft() const {
         return glm::normalize(glm::cross(Up, Look));
     }
+    Vec3 getRight() const {
+        return glm::normalize(glm::cross(Look, Up));
+    }
     void update(double dt) {
         float delta = static_cast<float>(dt);
         Vec3 vel = Velocity * delta;
@@ -49,4 +52,12 @@ public:
         return glm::lookAt(Eye, Eye + Look, Up);
     }
 };
+
+class WalkCamera: public FreeCamera {
+public:
+    Mat4 getMatrix() {
+        return glm::lookAt(Eye, Eye + Look, {0, 1, 0});
+    }
+};
+
 NS_SKY_GL_END

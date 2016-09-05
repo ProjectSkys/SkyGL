@@ -1,10 +1,10 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/basic/error.h>
-#include <skygl/gl/gl.h>
-#include <skygl/ui/key.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/basic/error.h"
+#include "skygl/gl/gl.h"
+#include "skygl/ui/key.h"
 
 #include <map>
 #include <memory>
@@ -72,6 +72,9 @@ public:
     void setHeight(UInt height) {
         _height = height;
         glfwSetWindowSize(_window, _width, _height);
+    }
+    Float getAspect() const {
+        return static_cast<Float>(getWidth()) / getHeight();
     }
     String getTitle() const {
         return _title;

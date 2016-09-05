@@ -1,28 +1,30 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/gl/gl.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/gl/gl.h"
+#include "skygl/gl/texture.h"
 
 #include <boost/noncopyable.hpp>
 
 NS_SKY_GL_BEG
 
-class Buffer: private boost::noncopyable {
+template <Enum BufferType>
+class BaseBuffer: private boost::noncopyable {
 protected:
     UInt _id;
 public:
-    Buffer() {
+    BaseBuffer() {
         glGenBuffers(1, &_id);
     }
-    ~Buffer() {
+    ~BaseBuffer() {
         if (_id) glDeleteBuffers(1, &_id);
     }
-    Buffer(Buffer&& buf) {
+    BaseBuffer(BaseBuffer&& buf) {
         _id = buf._id;
         buf._id = 0;
     }
-    Buffer& operator = (Buffer&& buf) {
+    BaseBuffer& operator = (BaseBuffer&& buf) {
         if (this == &buf) return *this;
         _id = buf._id;
         buf._id = 0;
@@ -31,23 +33,49 @@ public:
     UInt getId() const {
         return _id;
     }
-};
-
-class ArrayBuffer: public Buffer {
-public:
-    const ArrayBuffer& data(VoidPtr dat, UInt size) const {
-        glBufferData(GL_ARRAY_BUFFER, size, dat, GL_STATIC_DRAW);
+    const BaseBuffer& bind() const {
+        glBindBuffer(BufferType, _id);
+        return *this;
+    }
+    const BaseBuffer& unbind() const {
+        glBindBuffer(BufferType, 0);
+        return *this;
+    }
+    const BaseBuffer& data(KVoidPtr dat, UInt size) const {
+        glBufferData(BufferType, size, dat, GL_STATIC_DRAW);
+        return *this;
+    }
+    template <typename T>
+    const BaseBuffer& data(const std::vector<T>& v) const {
+        data(static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T));
+        return *this;
+    }
+    const BaseBuffer& sub(KVoidPtr dat, UInt size, UInt offset = 0) const {
+        glBufferSubData(BufferType, offset, size, dat);
+        return *this;
+    }
+    template <typename T>
+    const BaseBuffer& sub(const std::vector<T>& v, UInt offset = 0) const {
+        sub(BufferType, static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T), offset);
+        return *this;
+    }
+    const BaseBuffer& empty(UInt size) const {
+        data(nullptr, size);
+        return *this;
+    }
+    const BaseBuffer& binding(UInt point) const {
+        glBindBufferBase(BufferType, point, _id);
+        return *this;
+    }
+    const BaseBuffer& binding(UInt point, UInt size, UInt offset = 0) const {
+        glBindBufferRange(BufferType, point, _id, offset, size);
         return *this;
     }
 };
 
-class ElementBuffer: public Buffer {
-public:
-    const ElementBuffer& data(VoidPtr dat, UInt size) const {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, dat, GL_STATIC_DRAW);
-        return *this;
-    }
-};
+using ArrayBuffer = BaseBuffer<GL_ARRAY_BUFFER>;
+using ElementBuffer = BaseBuffer<GL_ELEMENT_ARRAY_BUFFER>;
+using UniformBuffer = BaseBuffer<GL_UNIFORM_BUFFER>;
 
 class Attrib {
 private:
@@ -57,11 +85,15 @@ private:
     Bool _normalized;
     Size _stride;
     VoidPtr _pointer;
+    UInt _divisor;
 public:
-    Attrib(UInt idx): _idx(idx), _normalized(False) {}
+    explicit Attrib(UInt idx)
+        : _idx(idx)
+        , _normalized(False) {}
     ~Attrib() {
-        glVertexAttribPointer(_idx, _size, _type, _normalized, _stride, _pointer);
         glEnableVertexAttribArray(_idx);
+        glVertexAttribPointer(_idx, _size, _type, _normalized, _stride, _pointer);
+        glVertexAttribDivisor(_idx, _divisor);
     }
     template <class T>
     Attrib& has(UInt size) {
@@ -77,12 +109,16 @@ public:
         _stride = stride;
         return *this;
     }
-    Attrib& offset(SizeT offset) {
+    Attrib& offset(UInt offset) {
         _pointer = reinterpret_cast<VoidPtr>(offset);
         return *this;
     }
     Attrib& pointer(VoidPtr pointer) {
         _pointer = pointer;
+        return *this;
+    }
+    Attrib& divisor(UInt div) {
+        _divisor = div;
         return *this;
     }
 };
@@ -115,17 +151,103 @@ public:
         glBindVertexArray(0);
         return *this;
     }
-    const ArrayBuffer& buffer(const ArrayBuffer& abuf) const {
-        glBindBuffer(GL_ARRAY_BUFFER, abuf.getId());
-        return abuf;
-    }
-    const ElementBuffer& buffer(const ElementBuffer& ebuf) const {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuf.getId());
-        return ebuf;
+    template <Enum Type>
+    const BaseBuffer<Type>& buffer(const BaseBuffer<Type>& buf) const {
+        buf.bind();
+        return buf;
     }
     Attrib attrib(UInt idx) const {
         return Attrib(idx);
     }
 };
+
+template <Enum BufferType>
+class BaseRenderBuffer: private boost::noncopyable {
+protected:
+    UInt _id;
+public:
+    BaseRenderBuffer() {
+        glGenRenderbuffers(1, &_id);
+    }
+    ~BaseRenderBuffer() {
+        if (_id) glDeleteRenderbuffers(1, &_id);
+    }
+    BaseRenderBuffer(BaseRenderBuffer&& buf) {
+        _id = buf._id;
+        buf._id = 0;
+    }
+    BaseRenderBuffer& operator = (BaseRenderBuffer&& buf) {
+        if (this == &buf) return *this;
+        _id = buf._id;
+        buf._id = 0;
+        return *this;
+    }
+    UInt getId() const {
+        return _id;
+    }
+    const BaseRenderBuffer& bind() const {
+        glBindRenderbuffer(BufferType, _id);
+        return *this;
+    }
+    const BaseRenderBuffer& unbind() const {
+        glBindRenderbuffer(BufferType, 0);
+        return *this;
+    }
+    const BaseRenderBuffer& storage(UInt width, UInt height, Enum format) const {
+        glRenderbufferStorage(BufferType, format, width, height);
+        return *this;
+    }
+};
+
+using RenderBuffer = BaseRenderBuffer<GL_RENDERBUFFER>;
+
+template <Enum BufferType>
+class BaseFrameBuffer: private boost::noncopyable {
+protected:
+    UInt _id;
+public:
+    BaseFrameBuffer() {
+        glGenFramebuffers(1, &_id);
+    }
+    ~BaseFrameBuffer() {
+        if (_id) glDeleteFramebuffers(1, &_id);
+    }
+    BaseFrameBuffer(BaseFrameBuffer&& buf) {
+        _id = buf._id;
+        buf._id = 0;
+    }
+    BaseFrameBuffer& operator = (BaseFrameBuffer&& buf) {
+        if (this == &buf) return *this;
+        _id = buf._id;
+        buf._id = 0;
+        return *this;
+    }
+    UInt getId() const {
+        return _id;
+    }
+    const BaseFrameBuffer& bind() const {
+        glBindFramebuffer(BufferType, _id);
+        return *this;
+    }
+    const BaseFrameBuffer& unbind() const {
+        glBindFramebuffer(BufferType, 0);
+        return *this;
+    }
+    template <Enum Type>
+    const BaseFrameBuffer& attach(const Texture<Type>& t, Enum point) const {
+        glFramebufferTexture(BufferType, point, t.getId(), 0);
+        return *this;
+    }
+    template <Enum Type>
+    const BaseFrameBuffer& attach(const BaseRenderBuffer<Type>& buf, Enum point) const {
+        glFramebufferRenderbuffer(BufferType, point, Type, buf.getId());
+        return *this;
+    }
+    Enum status() const {
+        return glCheckFramebufferStatus(BufferType);
+    }
+};
+
+using FrameBuffer = BaseFrameBuffer<GL_FRAMEBUFFER>;
 
 NS_SKY_GL_END

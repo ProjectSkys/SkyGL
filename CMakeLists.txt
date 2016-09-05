@@ -56,5 +56,5 @@ set(SKYGL_LIBRARY skygl)
 
 set(LIBS ${SKYGL_LIBRARY} ${DEPEND_LIBS})
 
-add_subdirectory(samples)
+add_subdirectory(examples)
 

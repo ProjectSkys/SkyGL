@@ -1,11 +1,11 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/basic/error.h>
-#include <skygl/basic/utils.h>
-#include <skygl/calc/math.h>
-#include <skygl/gl/gl.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/basic/error.h"
+#include "skygl/basic/utils.h"
+#include "skygl/calc/math.h"
+#include "skygl/gl/gl.h"
 
 #include <string>
 #include <iostream>
@@ -133,14 +133,45 @@ public:
         _checkLinkErrors();
         _linked = True;
     }
+    UInt getUniformLocation(KStringRef name) const {
+        return glGetUniformLocation(_id, name.c_str());
+    }
     const Program& uniform(KStringRef name, Int value) const {
-        UInt loc = glGetUniformLocation(_id, name.c_str());
+        UInt loc = getUniformLocation(name);
         glUniform1i(loc, value);
         return *this;
     }
-    const Program& uniform(KStringRef name, const Mat4& value) const {
-        UInt loc = glGetUniformLocation(_id, name.c_str());
+    const Program& uniform(KStringRef name, UInt value) const {
+        UInt loc = getUniformLocation(name);
+        glUniform1ui(loc, value);
+        return *this;
+    }
+    const Program& uniform(KStringRef name, SizeT value) const {
+        UInt loc = getUniformLocation(name);
+        glUniform1i(loc, value);
+        return *this;
+    }
+    const Program& uniform(KStringRef name, Float value) const {
+        UInt loc = getUniformLocation(name);
+        glUniform1f(loc, value);
+        return *this;
+    }
+    const Program& uniform(KStringRef name, KVec3Ref value) const {
+        UInt loc = getUniformLocation(name);
+        glUniform3f(loc, value.x, value.y, value.z);
+        return *this;
+    }
+    const Program& uniform(KStringRef name, KMat4Ref value) const {
+        UInt loc = getUniformLocation(name);
         glUniformMatrix4fv(loc, 1, False, glm::value_ptr(value));
+        return *this;
+    }
+    UInt getBlockIndex(KStringRef name) const {
+        return glGetUniformBlockIndex(_id, name.c_str());
+    }
+    const Program& binding(KStringRef name, UInt point) const {
+        UInt index = getBlockIndex(name);
+        glUniformBlockBinding(_id, index, point);
         return *this;
     }
     const Program& use() const {
@@ -158,5 +189,7 @@ private:
         }
     }
 };
+
+using KProgramRef = const Program&;
 
 NS_SKY_GL_END

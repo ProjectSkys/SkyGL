@@ -1,56 +1,26 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/basic/error.h>
-#include <skygl/gl/gl.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/basic/error.h"
+#include "skygl/gl/gl.h"
+#include "skygl/load/image.h"
+
+#include <memory>
 
 #include <boost/noncopyable.hpp>
 
-#include <SOIL/SOIL.h>
-
 NS_SKY_GL_BEG
-
-class Image: private boost::noncopyable {
-private:
-    UBytePtr _data;
-    Int _width, _height;
-public:
-    Image(KStringRef path) {
-        _data = SOIL_load_image(path.c_str(), &_width, &_height, 0, SOIL_LOAD_RGB);
-        if (_data == nullptr) {
-            throw GLException("Image::Image(path)", "Can not load " + path);
-        }
-    }
-    ~Image() {
-        if (_data) SOIL_free_image_data(_data);
-    }
-    Image(Image&& img) {
-        _data = img._data;
-        _width = img._width;
-        _height = img._height;
-        img._data = 0;
-    }
-    Image& operator = (Image&& img) {
-        if (this == &img) return *this;
-        _data = img._data;
-        _width = img._width;
-        _height = img._height;
-        img._data = 0;
-        return *this;
-    }
-    void toTexture(Enum textureType) const {
-        glTexImage2D(textureType, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
-    }
-};
 
 template <Enum TextureType = GL_TEXTURE_2D>
 class Texture: private boost::noncopyable {
+public:
+    using Ptr = std::shared_ptr<Texture<TextureType>>;
 private:
     UInt _id;
     UInt _active;
 public:
-    Texture(UInt active = 0): _active(active) {
+    Texture(UInt active = 0): _id(0), _active(active) {
         glGenTextures(1, &_id);
     }
     ~Texture() {
@@ -71,30 +41,37 @@ public:
     UInt getId() const {
         return _id;
     }
-    Texture& attach(UInt active) {
-        _active = active + 1;
-        return *this;
+    UInt getActive(UInt active) const {
+        return _active;
+    }
+    void setActive(UInt active) {
+        _active = active;
     }
     const Texture& bind() const {
-        if (_active != 0) {
-            glActiveTexture(GL_TEXTURE0 + _active - 1);
-        }
+        glActiveTexture(GL_TEXTURE0 + _active);
         glBindTexture(TextureType, _id);
         return *this;
     }
     const Texture& unbind() const {
-        if (_active != 0) {
-            glActiveTexture(GL_TEXTURE0 + _active - 1);
-        }
+        glActiveTexture(GL_TEXTURE0 + _active);
         glBindTexture(TextureType, 0);
+        return *this;
+    }
+    Texture& active(UInt active) {
+        setActive(active);
+        bind();
         return *this;
     }
     const Texture& param(Enum key, Int value) const {
         glTexParameteri(TextureType, key, value);
         return *this;
     }
-    const Texture& load(const Image& img) const {
-        img.toTexture(TextureType);
+    const Texture& load(const Image& img, Enum target = TextureType) const {
+        glTexImage2D(target, 0, img.colorType, img.width, img.height, 0, img.colorType, GL_UNSIGNED_BYTE, img.data);
+        return *this;
+    }
+    const Texture& empty(Int width, Int height, Enum format, Enum target = TextureType) const {
+        glTexImage2D(target, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
         return *this;
     }
     const Texture& genMipmap() const {
@@ -103,7 +80,12 @@ public:
     }
 };
 
-using Texture2D = Texture<GL_TEXTURE_2D>;
-using Texture3D = Texture<GL_TEXTURE_3D>;
+#define USING_TEXTURE(postfix, type) \
+    using Texture##postfix = Texture<GL_TEXTURE_##type>; \
+    using Texture##postfix##Ptr = Texture##postfix::Ptr;
+USING_TEXTURE(2D, 2D)
+USING_TEXTURE(3D, 3D)
+USING_TEXTURE(CubeMap, CUBE_MAP)
+#undef USING_TEXTURE
 
 NS_SKY_GL_END

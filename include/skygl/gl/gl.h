@@ -1,8 +1,8 @@
 #pragma once
 
-#include <skygl/basic/common.h>
-#include <skygl/basic/types.h>
-#include <skygl/calc/color.h>
+#include "skygl/basic/common.h"
+#include "skygl/basic/types.h"
+#include "skygl/calc/color.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -20,6 +20,13 @@ inline void glGet(Enum pname, Float* params) {
 }
 inline void glGet(Enum pname, Int* params) {
     glGetIntegerv(pname, params);
+}
+
+inline void glToggle(Enum pname) {
+    Bool enabled;
+    glGet(pname, &enabled);
+    if (enabled) glDisable(pname);
+    else glEnable(pname);
 }
 
 inline void glClearColorBuffer(ClampF r = 0, ClampF g = 0, ClampF b = 0, ClampF a = 1) {
