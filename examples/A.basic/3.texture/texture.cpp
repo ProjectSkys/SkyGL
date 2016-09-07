@@ -41,7 +41,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         if (key == GLFW_KEY_ESCAPE)
             window.close();
     });
@@ -100,6 +99,8 @@ int main() {
     window.loop([&]() {
         glfwPollEvents();
         glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         for (SizeT i = 0; i < textures.size(); ++i) {
             textures[i].active(i);
             program.uniform("tex" + std::to_string(i), i);

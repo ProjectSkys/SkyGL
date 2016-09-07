@@ -14,6 +14,7 @@ endforeach()
 list(REMOVE_ITEM suites res)
 
 foreach(suite ${suites})
+    string(REGEX REPLACE "[A-Z]*\\." "" suitename ${suite})
     add_custom_target(${suite}
         COMMAND ln -sf ${CUR_DIR}/res/ ${BIN_DIR}/${suite})
     foreach(unit ${${suite}})
@@ -39,7 +40,7 @@ foreach(suite ${suites})
             configure_file(${shader} ${output} COPYONLY)
         endforeach(shader)
 
-        add_custom_target(${suite}-${exe}
+        add_custom_target(${suitename}-${exe}
             COMMAND "${exe}"
             WORKING_DIRECTORY "${BIN_DIR}/${suite}"
             DEPENDS ${exe}

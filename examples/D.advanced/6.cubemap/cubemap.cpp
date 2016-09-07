@@ -159,7 +159,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -271,17 +270,18 @@ int main() {
         shader.uniform("view", camera.getMatrix());
         shader.uniform("cameraPos", camera.getEye());
         shader.uniform("effect", keyman.count[GLFW_KEY_V]);
-        shader.uniform("skybox", 0);
+        shader.uniform("skybox", 9);
 
-        sky.active(0);
+        sky.active(9);
         if (keyman.toggled[GLFW_KEY_SPACE]) {
             Mat4 model;
             model = glm::translate(model, {0.0f, -1.75f, 0.0f});
             model = glm::scale(model, {0.2f, 0.2f, 0.2f});
             shader.uniform("model", model);
-            ourModel.draw(shader, 1);
+            ourModel.draw(shader, 1, 1);
         } else {
-            shader.uniform("texture_diffuse0", 1);
+            shader.uniform("textures[0].ambient", 0);
+            shader.uniform("textures[0].diffuse", 1);
             textures[0].active(1);
             cube.bind();
             for (SizeT i = 0; i < cubePositions.size(); i++) {

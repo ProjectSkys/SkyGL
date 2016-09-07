@@ -80,16 +80,15 @@ using UniformBuffer = BaseBuffer<GL_UNIFORM_BUFFER>;
 class Attrib {
 private:
     UInt _idx;
-    Int _size;
-    Enum _type;
-    Bool _normalized;
-    Size _stride;
-    VoidPtr _pointer;
-    UInt _divisor;
+    Int _size = 0;
+    Enum _type = TypeToEnum<Float>;
+    Bool _normalized = False;
+    Size _stride = 0;
+    VoidPtr _pointer = nullptr;
+    UInt _divisor = 0;
 public:
     explicit Attrib(UInt idx)
-        : _idx(idx)
-        , _normalized(False) {}
+        : _idx(idx) {}
     ~Attrib() {
         glEnableVertexAttribArray(_idx);
         glVertexAttribPointer(_idx, _size, _type, _normalized, _stride, _pointer);
@@ -195,6 +194,10 @@ public:
     }
     const BaseRenderBuffer& storage(UInt width, UInt height, Enum format) const {
         glRenderbufferStorage(BufferType, format, width, height);
+        return *this;
+    }
+    const BaseRenderBuffer& storage(UInt width, UInt height, Enum format, UInt samples) const {
+        glRenderbufferStorageMultisample(BufferType, samples, format, width, height);
         return *this;
     }
 };

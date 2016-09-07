@@ -43,7 +43,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         if (key == GLFW_KEY_ESCAPE)
             window.close();
     });

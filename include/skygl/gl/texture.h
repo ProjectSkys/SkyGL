@@ -62,16 +62,37 @@ public:
         bind();
         return *this;
     }
-    const Texture& param(Enum key, Int value) const {
-        glTexParameteri(TextureType, key, value);
+    const Texture& param(Enum pname, Int value) const {
+        glTexParameteri(TextureType, pname, value);
+        return *this;
+    }
+    const Texture& param(Enum pname, Int* value) const {
+        glTexParameteriv(TextureType, pname, value);
+        return *this;
+    }
+    const Texture& param(Enum pname, Float value) const {
+        glTexParameterf(TextureType, pname, value);
+        return *this;
+    }
+    const Texture& param(Enum pname, Float* value) const {
+        glTexParameterfv(TextureType, pname, value);
+        return *this;
+    }
+    template <typename T>
+    const Texture& param(Enum pname, const std::vector<T>& value) const {
+        param(TextureType, pname, &value[0]);
         return *this;
     }
     const Texture& load(const Image& img, Enum target = TextureType) const {
-        glTexImage2D(target, 0, img.colorType, img.width, img.height, 0, img.colorType, GL_UNSIGNED_BYTE, img.data);
+        glTexImage2D(target, 0, img.internalFormat, img.width, img.height, 0, img.pixelFormat, GL_UNSIGNED_BYTE, img.data);
         return *this;
     }
-    const Texture& empty(Int width, Int height, Enum format, Enum target = TextureType) const {
-        glTexImage2D(target, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+    const Texture& multisample(Int width, Int height, Enum format, UInt samples = 1, Enum target = TextureType) const {
+        glTexImage2DMultisample(target, samples, format, width, height, True);
+        return *this;
+    }
+    const Texture& empty(Int width, Int height, Enum format, Enum type = GL_UNSIGNED_BYTE, Enum target = TextureType) const {
+        glTexImage2D(target, 0, format, width, height, 0, format, type, nullptr);
         return *this;
     }
     const Texture& genMipmap() const {
@@ -86,6 +107,7 @@ public:
 USING_TEXTURE(2D, 2D)
 USING_TEXTURE(3D, 3D)
 USING_TEXTURE(CubeMap, CUBE_MAP)
+USING_TEXTURE(2DMultisample, 2D_MULTISAMPLE)
 #undef USING_TEXTURE
 
 NS_SKY_GL_END

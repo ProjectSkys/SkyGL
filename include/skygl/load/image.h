@@ -14,9 +14,16 @@ class Image: private boost::noncopyable {
 public:
     UBytePtr data;
     Int width, height;
-    Enum colorType;
+    Enum pixelFormat;
+    Enum internalFormat;
 public:
-    Image(KStringRef path, Bool alpha=false): colorType(alpha ? GL_RGBA : GL_RGB) {
+    Image(KStringRef path, bool alpha = false, Bool gamma = false)
+        : pixelFormat(alpha ? GL_RGBA : GL_RGB)
+        , internalFormat(alpha ?
+            (gamma ? GL_SRGB_ALPHA : GL_RGBA) :
+            (gamma ? GL_SRGB : GL_RGB)
+        )
+    {
         data = SOIL_load_image(path.c_str(), &width, &height, 0, alpha ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
         if (data == nullptr) {
             throw GLException("Image::Image(path)", "Can not load " + path);

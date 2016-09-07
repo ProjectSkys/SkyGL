@@ -9,8 +9,7 @@ const String UNIT = "lighting";
 const String NAME = "map";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
-GLfloat vertices[] = {
+Float vertices[] {
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
@@ -55,18 +54,17 @@ GLfloat vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
 };
 
-// World space positions of our cubes
 Vec3 cubePositions[] {
-    { 0.0f,  0.0f,   0.0f},
-    { 2.0f,  5.0f, -15.0f},
-    {-1.5f, -2.2f, - 2.5f},
-    {-3.8f, -2.0f, -12.3f},
-    { 2.4f, -0.4f, - 3.5f},
-    {-1.7f,  3.0f, - 7.5f},
-    { 1.3f, -2.0f, - 2.5f},
-    { 1.5f,  2.0f, - 2.5f},
-    { 1.5f,  0.2f, - 1.5f},
-    {-1.3f,  1.0f, - 1.5f}
+    {  0.0f,  0.0f,   0.0f },
+    {  2.0f,  5.0f, -15.0f },
+    { -1.5f, -2.2f, - 2.5f },
+    { -3.8f, -2.0f, -12.3f },
+    {  2.4f, -0.4f, - 3.5f },
+    { -1.7f,  3.0f, - 7.5f },
+    {  1.3f, -2.0f, - 2.5f },
+    {  1.5f,  2.0f, - 2.5f },
+    {  1.5f,  0.2f, - 1.5f },
+    { -1.3f,  1.0f, - 1.5f }
 };
 
 bool initGLFW() {
@@ -116,7 +114,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -154,11 +151,11 @@ int main() {
            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
     VAO.unbind();
 
-    std::vector<Texture2D> textures(2);
     std::vector<String> paths {
         "res/textures/container2.png",
-        "res/textures/container2_specular.png"
+        "res/textures/container2_specular.png",
     };
+    std::vector<Texture2D> textures(paths.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
         textures[i]
             .bind()
@@ -170,7 +167,8 @@ int main() {
                .genMipmap()
            .unbind();
     }
-    Vec3 lightPos{1.2, 1, 2};
+
+    Vec3 lightPos {1.2, 1, 2};
 
     window.loop([&]() {
         glfwPollEvents();
@@ -195,13 +193,12 @@ int main() {
 
         camera.update(dt);
 
-        lightPos = glm::rotateY(lightPos, 0.02f);
+        if (!keyman.toggled[GLFW_KEY_M]) {
+            lightPos = glm::rotateY(lightPos, 0.02f);
+        }
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
-
-        for (SizeT i = 0; i < textures.size(); ++i) {
-            textures[i].active(i);
-        }
+        auto view = camera.getMatrix();
 
         light.use();
 
@@ -218,32 +215,34 @@ int main() {
         light.uniform("material.shininess", 32.0f);
 
         light.uniform("projection", projection);
-        light.uniform("view", camera.getMatrix());
+        light.uniform("view", view);
 
         light.uniform("viewPos", camera.getEye());
 
-        VAO.bind();
-        for (int i = 0; i < 10; i++) {
-            Float angle = 20.0f * i;
-            Mat4 model;
-            model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
-            light.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        if (!keyman.toggled[GLFW_KEY_SPACE]) {
+            textures[0].active(0);
+            textures[1].active(1);
+            VAO.bind();
+            for (int i = 0; i < 10; i++) {
+                Float angle = 20.0f * i;
+                Mat4 model;
+                model = glm::translate(Mat4(), cubePositions[i]);
+                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+                light.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+            VAO.unbind();
         }
-        VAO.unbind();
 
         lamp.use();
         lamp.uniform("projection", projection);
-        lamp.uniform("view", camera.getMatrix());
+        lamp.uniform("view", view);
         VAO.bind();
-        {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.2, 0.2, 0.2});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
         VAO.unbind();
     });
 

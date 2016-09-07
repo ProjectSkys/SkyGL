@@ -56,7 +56,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -79,7 +78,16 @@ int main() {
 
     Program program(NAME + ".vs", NAME + ".frag");
 
-    Model ourModel("res/objects/nanosuit/nanosuit.obj");
+    std::vector<String> paths {
+        "res/objects/nanosuit/nanosuit.obj",
+        "res/objects/cyborg/cyborg.obj",
+        "res/objects/rock/rock.obj",
+        "res/objects/planet/planet.obj",
+    };
+    std::vector<Model> models(paths.size());
+    for (SizeT i = 0; i < models.size(); ++i) {
+        models[i].load(paths[i]);
+    }
 
     Mat4 model;
     model = glm::translate(model, {0.0f, -1.5f, 0.0f});
@@ -119,7 +127,8 @@ int main() {
         model = glm::rotate(model, 0.01f, {0, 1, 0});
         program.uniform("model", model);
 
-        ourModel.draw(program, 1);
+        int idx = keyman.count[GLFW_KEY_M] % models.size();
+        models[idx].draw(program, 1, 2);
     });
 
     glfwTerminate();

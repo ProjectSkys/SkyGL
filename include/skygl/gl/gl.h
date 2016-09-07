@@ -29,15 +29,4 @@ inline void glToggle(Enum pname) {
     else glEnable(pname);
 }
 
-inline void glClearColorBuffer(ClampF r = 0, ClampF g = 0, ClampF b = 0, ClampF a = 1) {
-    glClearColor(r, g, b, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-inline void glClearColorBuffer(const ColorRGB& rgb) {
-    glClearColorBuffer(rgb.r, rgb.g, rgb.b);
-}
-inline void glClearColorBuffer(const ColorRGBA& rgba) {
-    glClearColorBuffer(rgba.r, rgba.g, rgba.b, rgba.a);
-}
-
 NS_SKY_GL_END

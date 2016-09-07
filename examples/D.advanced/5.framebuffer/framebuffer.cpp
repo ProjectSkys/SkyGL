@@ -137,7 +137,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -188,15 +187,15 @@ int main() {
             .stride(SizeOf<4, Float>).offset(SizeOf<2, Float>);
     quad.unbind();
 
+    FrameBuffer FBO;
     Texture2D fbt;
+    RenderBuffer RBO;
+
     fbt.bind()
        .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
        .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
        .empty(WIDTH, HEIGHT, GL_RGB)
     .unbind();
-
-    FrameBuffer FBO;
-    RenderBuffer RBO;
 
     RBO.bind()
        .storage(WIDTH, HEIGHT, GL_DEPTH24_STENCIL8)

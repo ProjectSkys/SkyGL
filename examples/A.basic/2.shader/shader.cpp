@@ -40,7 +40,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         if (key == GLFW_KEY_ESCAPE)
             window.close();
     });
@@ -71,7 +70,9 @@ int main() {
 
     window.loop([&]() {
         glfwPollEvents();
-        glClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         program.use();
         VAO.bind();
             glDrawArrays(GL_TRIANGLES, 0, 3);

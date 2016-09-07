@@ -115,7 +115,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -191,8 +190,8 @@ int main() {
         for (int i = 0; i < 10; i++) {
             Float angle = 20.0f * i;
             Mat4 model;
-            model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
+            model = glm::translate(model, cubePositions[i]);
+            model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
             light.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

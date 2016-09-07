@@ -41,7 +41,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&window](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         if (key == GLFW_KEY_ESCAPE)
             window.close();
     });
@@ -80,11 +79,11 @@ int main() {
            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
     VAO.unbind();
 
-    std::vector<Texture2D> textures(2);
     std::vector<String> paths {
         "res/textures/container.jpg",
         "res/textures/awesomeface.png"
     };
+    std::vector<Texture2D> textures(paths.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
         textures[i]
             .bind()
@@ -100,14 +99,16 @@ int main() {
     window.loop([&]() {
         glfwPollEvents();
         glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         for (SizeT i = 0; i < textures.size(); ++i) {
             textures[i].active(i);
             program.uniform("tex" + std::to_string(i), i);
         }
 
         Mat4 transform;
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-        transform = glm::rotate(transform, (Float)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::rotate(transform, (Float)glfwGetTime(), {0.0f, 0.0f, 1.0f});
+        transform = glm::translate(transform, {0.5f, -0.5f, 0.0f});
 
         program.uniform("transform", transform);
 

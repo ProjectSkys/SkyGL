@@ -9,8 +9,7 @@ const String UNIT = "lighting";
 const String NAME = "material";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
-GLfloat vertices[] = {
+Float vertices[] {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -54,7 +53,6 @@ GLfloat vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
 
-// World space positions of our cubes
 Vec3 cubePositions[] {
     { 0.0f,  0.0f,   0.0f},
     { 2.0f,  5.0f, -15.0f},
@@ -115,7 +113,6 @@ int main() {
         glViewport(0, 0, width, height);
     });
     window.keypressed.connect([&](Key key) {
-        std::cout << "Key: " << key << " " << key.code << std::endl;
         keyman.onKeyPressed(key);
         switch (key) {
             case GLFW_KEY_ESCAPE:

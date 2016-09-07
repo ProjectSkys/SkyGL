@@ -41,22 +41,35 @@ private:
     ElementBuffer EBO;
 public:
     Mesh(Vertices v, Indices i, TexturesMap t)
-        : vertices(std::move(v)), indices(std::move(i)), textures(std::move(t))
+        : vertices(std::move(v))
+        , indices(std::move(i))
+        , textures(std::move(t))
     {
         setup();
     }
-    void draw(KProgramRef shader, UInt id = 0) {
+    template <typename Func>
+    void setupVAO(Func&& f) {
+        VAO.bind();
+        f(VAO);
+        VAO.unbind();
+    }
+    void draw(KProgramRef shader, UInt instance = 1, UInt id = 0) {
         for (auto& p : textures) {
             auto& name = p.first;
             auto& texs = p.second;
             for (SizeT i = 0; i < texs.size(); ++i) {
                 texs[i]->active(id);
-                shader.uniform("texture_" + name + std::to_string(i), static_cast<Int>(id));
+                auto uniformName = "textures[" + std::to_string(i) + "]." + name;
+                shader.uniform(uniformName, static_cast<Int>(id));
                 id++;
             }
         }
         VAO.bind();
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        if (instance == 1) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        } else {
+            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instance);
+        }
         VAO.unbind();
         for (auto& p : textures) {
             for (auto& t : p.second) {
@@ -92,9 +105,15 @@ public:
     Model(KStringRef path) {
         load(path);
     }
-    void draw(KProgramRef shader, UInt id = 0) {
+    template <typename Func>
+    void setupVAO(Func&& f) {
         for (auto& m : meshes) {
-            m.draw(shader, id);
+            m.setupVAO(std::forward<Func>(f));
+        }
+    }
+    void draw(KProgramRef shader, UInt instance = 1, UInt id = 0) {
+        for (auto& m : meshes) {
+            m.draw(shader, instance, id);
         }
     }
     void load(KStringRef path) {
