@@ -6,7 +6,7 @@
 using namespace sky::gl;
 
 const String UNIT = "lighting2";
-const String NAME = "shadowmap";
+const String NAME = "pointshadow";
 const UInt WIDTH = 800, HEIGHT = 600;
 
 Float cubeVertices[] {
@@ -54,36 +54,57 @@ Float cubeVertices[] {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
 };
 
-Vec3 cubePositions[] {
-    {  0.0f,  0.0f,   0.0f },
-    {  2.0f,  5.0f, -15.0f },
-    { -1.5f, -2.2f, - 2.5f },
-    { -3.8f, -2.0f, -12.3f },
-    {  2.4f, -0.4f, - 3.5f },
-    { -1.7f,  3.0f, - 7.5f },
-    {  1.3f, -2.0f, - 2.5f },
-    {  1.5f,  2.0f, - 2.5f },
-    {  1.5f,  0.2f, - 1.5f },
-    { -1.3f,  1.0f, - 1.5f }
+Float icubeVertices[] {
+    // Positions          // Normals           // Texture Coords
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+     0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+     0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+     0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+     0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f
 };
 
-Float planeVertices[] {
-    // Positions          // Normals         // Texture Coords
-     8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 0.0f,
-    -8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-    -8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 5.0f,
-
-     8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 0.0f,
-    -8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 5.0f,
-     8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 5.0f
-};
-
-Float quadVertices[] {
-    // Positions        // Texture Coords
-    -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
-    -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
-     1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
-     1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+std::vector<Vec3> cubePositions {
+    { 4.0f, -3.5f,  0.0},
+    { 2.0f,  3.0f,  1.0},
+    {-3.0f, -1.0f,  0.0},
+    {-1.5f,  1.0f,  1.5},
+    {-1.5f,  2.0f, -3.0},
 };
 
 bool initGLFW() {
@@ -168,49 +189,46 @@ int main() {
             .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
     cube.unbind();
 
-    VertexArray plane;
-    ArrayBuffer pVBO;
-    plane.bind();
-        plane.buffer(pVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        plane.attrib(0).has<Float>(3)
+    VertexArray icube;
+    ArrayBuffer iVBO;
+    icube.bind();
+        icube.buffer(iVBO)
+             .data(icubeVertices, sizeof(icubeVertices));
+        icube.attrib(0).has<Float>(3)
              .stride(SizeOf<8, Float>).offset(0);
-        plane.attrib(1).has<Float>(3)
+        icube.attrib(1).has<Float>(3)
              .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        plane.attrib(2).has<Float>(2)
+        icube.attrib(2).has<Float>(2)
              .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    plane.unbind();
-
-    VertexArray quad;
-    ArrayBuffer qVBO;
-    quad.bind();
-        quad.buffer(qVBO).data(quadVertices, sizeof(quadVertices));
-        quad.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
-        quad.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    quad.unbind();
+    icube.unbind();
 
     const UInt SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     Float borderColor[] {1.0f, 1.0f, 1.0f, 1.0f};
     FrameBuffer FBO;
-    Texture2D depthMap;
-    depthMap.bind()
-       .param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
-       .param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
-       .param(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-       .param(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-       .param(GL_TEXTURE_BORDER_COLOR, borderColor)
-       .empty(SHADOW_WIDTH, SHADOW_HEIGHT, GL_DEPTH_COMPONENT, GL_FLOAT)
-    .unbind();
+    TextureCubeMap depthMap;
+    depthMap.bind();
+        depthMap
+            .param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
+            .param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
+            .param(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            .param(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            .param(GL_TEXTURE_BORDER_COLOR, borderColor);
+        for (UInt i = 0; i < 6; ++i) {
+            Enum target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
+            depthMap.empty(SHADOW_WIDTH, SHADOW_HEIGHT, GL_DEPTH_COMPONENT, GL_FLOAT, target);
+        }
+    depthMap.unbind();
     FBO.bind();
         FBO.attach(depthMap, GL_DEPTH_ATTACHMENT);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
+        if (FBO.status() != GL_FRAMEBUFFER_COMPLETE) {
+            std::cout << "Framebuffer not complete!" << std::endl;
+        }
     FBO.unbind();
 
     std::vector<std::tuple<String, bool, bool>> images {
-        { "res/textures/wood.png",                false, true  },
-        { "res/textures/wood_specular.png",       false, false },
-        { "res/textures/container2.png",          false, true  },
+        { "res/textures/container2.png",          false, false  },
         { "res/textures/container2_specular.png", false, false },
     };
     std::vector<Texture2D> textures(images.size());
@@ -230,36 +248,31 @@ int main() {
 
     Program scene(NAME + ".vs", NAME + ".frag");
     Program lamp("lamp.vs", "lamp.frag");
-    Program depth("depth.vs", "depth.frag");
-    Program debug("debug.vs", "debug.frag");
+    Program depth("depth.vs", "depth.frag", "depth.gs");
 
-    Vec3 lightPos {-2, 2, -1};
+    Vec3 lightPos {0, 0, 0};
     Vec3 lightColor {1, 1, 1};
     Vec3 diffuseColor = lightColor * Vec3(0.5f);
     Vec3 ambientColor = diffuseColor * Vec3(0.3f);
 
     auto drawScene = [&](const Program& scene) {
-        scene.use();
         textures[0].active(0);
         textures[1].active(1);
-        plane.bind();
-            scene.uniform("model", Mat4());
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        plane.unbind();
-        if (!keyman.toggled[GLFW_KEY_SPACE]) {
-            textures[2].active(0);
-            textures[3].active(1);
-            cube.bind();
-            for (int i = 0; i < 10; i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-                scene.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-            cube.unbind();
+        icube.bind();
+            Mat4 model = glm::scale(Mat4(), Vec3(10.0));
+            scene.uniform("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        icube.unbind();
+        cube.bind();
+        for (SizeT i = 0; i < cubePositions.size(); i++) {
+            Float angle = 20.0f * i;
+            Mat4 model;
+            model = glm::translate(model, cubePositions[i]);
+            model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+            scene.uniform("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        cube.unbind();
     };
 
     glClearColor(0, 0, 0, 1);
@@ -285,24 +298,36 @@ int main() {
 
         camera.update(dt);
 
-        if (keyman.toggled[GLFW_KEY_M]) {
-            lightPos = glm::rotateY(lightPos, 0.02f);
-        }
+        // if (keyman.toggled[GLFW_KEY_M]) {
+        //     lightPos = glm::rotateY(lightPos, 0.02f);
+        // }
 
-        Float near_plane = 0.1f, far_plane = 10.5f;
-        auto lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        // lightProjection = glm::perspective(45.0f, (GLfloat)SHADOW_WIDTH / SHADOW_HEIGHT, near_plane, far_plane);
-        // Note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene.
-        auto lightView = glm::lookAt(lightPos, {0, 0, 0}, {0.0, 1.0, 0.0});
-        auto lightSpaceMatrix = lightProjection * lightView;
+        Float aspect = (Float)SHADOW_WIDTH / SHADOW_HEIGHT;
+        Float near = 1.0f, far = 25.0f;
+        auto shadowProj = glm::perspective(90.0f, aspect, near, far);
+        auto M = [&](KVec3Ref dir, KVec3Ref up) {
+            return shadowProj * glm::lookAt(lightPos, lightPos + dir, up);
+        };
+        std::vector<Mat4> shadowTransforms {
+            M({ 1.0,  0.0,  0.0}, {0.0, -1.0,  0.0}),
+            M({-1.0,  0.0,  0.0}, {0.0, -1.0,  0.0}),
+            M({ 0.0,  1.0,  0.0}, {0.0,  0.0,  1.0}),
+            M({ 0.0, -1.0,  0.0}, {0.0,  0.0, -1.0}),
+            M({ 0.0,  0.0,  1.0}, {0.0, -1.0,  0.0}),
+            M({ 0.0,  0.0, -1.0}, {0.0, -1.0,  0.0}),
+        };
+
+        FBO.bind();
 
         depth.use();
-        depth.uniform("lightSpaceMatrix", lightSpaceMatrix);
+        depth.uniform("shadowTransforms", shadowTransforms);
+        depth.uniform("lightPos", lightPos);
+        depth.uniform("far_plane", far);
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        FBO.bind();
-            glClear(GL_DEPTH_BUFFER_BIT);
-            drawScene(depth);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        drawScene(depth);
+
         FBO.unbind();
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
@@ -311,7 +336,6 @@ int main() {
         scene.use();
         scene.uniform("projection", projection);
         scene.uniform("view", view);
-        scene.uniform("lightSpaceMatrix", lightSpaceMatrix);
 
         scene.uniform("light.ambient", ambientColor);
         scene.uniform("light.diffuse", diffuseColor);
@@ -322,11 +346,11 @@ int main() {
         scene.uniform("material.specular", 1);
         scene.uniform("material.shininess", 16.0f);
 
-        scene.uniform("shadowMap", 2);
+        scene.uniform("depthMap", 2);
         scene.uniform("viewPos", camera.getEye());
-        scene.uniform("blinn", !keyman.toggled[GLFW_KEY_B]);
-        scene.uniform("gamma", !keyman.toggled[GLFW_KEY_G]);
+        scene.uniform("far_plane", far);
         scene.uniform("shadows", !keyman.toggled[GLFW_KEY_O]);
+        scene.uniform("debug", keyman.toggled[GLFW_KEY_B]);
 
         glViewport(0, 0, window.getWidth(), window.getHeight());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -341,21 +365,10 @@ int main() {
         cube.bind();
             Mat4 model;
             model = glm::translate(model, lightPos);
-            model = glm::scale(model, {0.2, 0.2, 0.2});
+            model = glm::scale(model, {0.05, 0.05, 0.05});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         cube.unbind();
-
-        if (keyman.toggled[GLFW_KEY_B]) {
-            debug.use();
-            debug.uniform("depthMap", 0);
-            debug.uniform("near_plane", near_plane);
-            debug.uniform("far_plane", far_plane);
-            depthMap.active(0);
-            quad.bind();
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            quad.unbind();
-        }
     });
 
     glfwTerminate();

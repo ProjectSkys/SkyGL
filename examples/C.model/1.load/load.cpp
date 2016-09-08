@@ -89,9 +89,18 @@ int main() {
         models[i].load(paths[i]);
     }
 
-    Mat4 model;
-    model = glm::translate(model, {0.0f, -1.5f, 0.0f});
-    model = glm::scale(model, {0.2f, 0.2f, 0.2f});
+    std::vector<std::pair<Vec3, Vec3>> trans {
+        {{0, -1.5, 0}, {0.2, 0.2, 0.2}},
+        {{0, -1.2, 0}, {0.7, 0.7, 0.7}},
+        {{0,    0, 0}, {0.5, 0.5, 0.5}},
+        {{0, -0.5, 0}, {0.4, 0.4, 0.4}},
+    };
+    std::vector<Mat4> fixes(trans.size());
+    for (SizeT i = 0; i < fixes.size(); ++i) {
+        Mat4& fix = fixes[i];
+        fix = glm::translate(fix, trans[i].first);
+        fix = glm::scale(fix, trans[i].second);
+    }
 
     window.loop([&]() {
         glfwPollEvents();
@@ -119,15 +128,19 @@ int main() {
         program.use();
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
-
-        program.uniform("projection", projection);
-        program.uniform("view", camera.getMatrix());
-        program.uniform("select", keyman.count[GLFW_KEY_SPACE]);
-
-        model = glm::rotate(model, 0.01f, {0, 1, 0});
-        program.uniform("model", model);
+        auto view = camera.getMatrix();
+        static Mat4 model;
+        if (!keyman.toggled[GLFW_KEY_N]) {
+            model = glm::rotate(model, 0.01f, {0, 1, 0});
+        }
 
         int idx = keyman.count[GLFW_KEY_M] % models.size();
+
+        program.uniform("projection", projection);
+        program.uniform("view", view);
+        program.uniform("model", fixes[idx] * model);
+        program.uniform("select", keyman.count[GLFW_KEY_SPACE]);
+
         models[idx].draw(program, 1, 2);
     });
 

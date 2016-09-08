@@ -41,21 +41,21 @@ public:
         glBindBuffer(BufferType, 0);
         return *this;
     }
-    const BaseBuffer& data(KVoidPtr dat, UInt size) const {
-        glBufferData(BufferType, size, dat, GL_STATIC_DRAW);
+    const BaseBuffer& data(KVoidPtr dat, Sizeptr size, Enum usage = GL_STATIC_DRAW) const {
+        glBufferData(BufferType, size, dat, usage);
         return *this;
     }
     template <typename T>
-    const BaseBuffer& data(const std::vector<T>& v) const {
-        data(static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T));
+    const BaseBuffer& data(const std::vector<T>& v, Enum usage = GL_STATIC_DRAW) const {
+        data(static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T), usage);
         return *this;
     }
-    const BaseBuffer& sub(KVoidPtr dat, UInt size, UInt offset = 0) const {
+    const BaseBuffer& sub(KVoidPtr dat, Sizeptr size, Intptr offset = 0) const {
         glBufferSubData(BufferType, offset, size, dat);
         return *this;
     }
     template <typename T>
-    const BaseBuffer& sub(const std::vector<T>& v, UInt offset = 0) const {
+    const BaseBuffer& sub(const std::vector<T>& v, Intptr offset = 0) const {
         sub(BufferType, static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T), offset);
         return *this;
     }
@@ -67,7 +67,7 @@ public:
         glBindBufferBase(BufferType, point, _id);
         return *this;
     }
-    const BaseBuffer& binding(UInt point, UInt size, UInt offset = 0) const {
+    const BaseBuffer& binding(UInt point, Sizeptr size, Intptr offset = 0) const {
         glBindBufferRange(BufferType, point, _id, offset, size);
         return *this;
     }
@@ -84,7 +84,7 @@ private:
     Enum _type = TypeToEnum<Float>;
     Bool _normalized = False;
     Size _stride = 0;
-    VoidPtr _pointer = nullptr;
+    KVoidPtr _pointer = nullptr;
     UInt _divisor = 0;
 public:
     explicit Attrib(UInt idx)
@@ -95,7 +95,7 @@ public:
         glVertexAttribDivisor(_idx, _divisor);
     }
     template <class T>
-    Attrib& has(UInt size) {
+    Attrib& has(Int size) {
         _size = size;
         _type = TypeToEnum<T>;
         return *this;
@@ -108,11 +108,11 @@ public:
         _stride = stride;
         return *this;
     }
-    Attrib& offset(UInt offset) {
+    Attrib& offset(Sizeptr offset) {
         _pointer = reinterpret_cast<VoidPtr>(offset);
         return *this;
     }
-    Attrib& pointer(VoidPtr pointer) {
+    Attrib& pointer(KVoidPtr pointer) {
         _pointer = pointer;
         return *this;
     }

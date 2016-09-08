@@ -209,15 +209,14 @@ int main() {
         String path = images[i].first;
         Bool alpha = images[i].second;
         Enum wrap = alpha ? GL_CLAMP_TO_EDGE : GL_REPEAT;
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, wrap)
-               .param(GL_TEXTURE_WRAP_T, wrap)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(path, alpha))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, wrap)
+           .param(GL_TEXTURE_WRAP_T, wrap)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(path, alpha))
+           .genMipmap()
+       .unbind();
     }
 
     window.loop([&]() {

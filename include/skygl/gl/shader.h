@@ -123,9 +123,12 @@ public:
     }
     template <Enum T>
     Program& attach(const Shader<T>& shader) {
-        if (shader.compiled()) {
-            glAttachShader(_id, shader.getId());
-        }
+        glAttachShader(_id, shader.getId());
+        return *this;
+    }
+    template <Enum T>
+    Program& detach(const Shader<T>& shader) {
+        glDetachShader(_id, shader.getId());
         return *this;
     }
     void link() {
@@ -161,10 +164,30 @@ public:
         glUniform3f(loc, value.x, value.y, value.z);
         return *this;
     }
+    const Program& uniform(KStringRef name, KMat3Ref value) const {
+        UInt loc = getUniformLocation(name);
+        glUniformMatrix3fv(loc, 1, False, glm::value_ptr(value));
+        return *this;
+    }
     const Program& uniform(KStringRef name, KMat4Ref value) const {
         UInt loc = getUniformLocation(name);
         glUniformMatrix4fv(loc, 1, False, glm::value_ptr(value));
         return *this;
+    }
+    template <typename T>
+    const Program& uniform(KStringRef name, T* objs, UInt size) const {
+        for (UInt i = 0; i < size; ++i) {
+            uniform(name + "[" + std::to_string(i) + "]", objs[i]);
+        }
+        return *this;
+    }
+    template <typename T, size_t N>
+    const Program& uniform(KStringRef name, T objs[N]) const {
+        return uniform(name, objs, N);
+    }
+    template <typename T>
+    const Program& uniform(KStringRef name, const std::vector<T>& objs) const {
+        return uniform(name, &objs[0], objs.size());
     }
     UInt getBlockIndex(KStringRef name) const {
         return glGetUniformBlockIndex(_id, name.c_str());

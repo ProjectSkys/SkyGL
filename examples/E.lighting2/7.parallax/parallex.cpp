@@ -5,11 +5,11 @@
 
 using namespace sky::gl;
 
-const String UNIT = "lighting";
-const String NAME = "map";
+const String UNIT = "lighting2";
+const String NAME = "parallex";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-Float vertices[] {
+Float cubeVertices[] {
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
@@ -52,19 +52,6 @@ Float vertices[] {
      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-};
-
-Vec3 cubePositions[] {
-    {  0.0f,  0.0f,   0.0f },
-    {  2.0f,  5.0f, -15.0f },
-    { -1.5f, -2.2f, - 2.5f },
-    { -3.8f, -2.0f, -12.3f },
-    {  2.4f, -0.4f, - 3.5f },
-    { -1.7f,  3.0f, - 7.5f },
-    {  1.3f, -2.0f, - 2.5f },
-    {  1.5f,  2.0f, - 2.5f },
-    {  1.5f,  0.2f, - 1.5f },
-    { -1.3f,  1.0f, - 1.5f }
 };
 
 bool initGLFW() {
@@ -134,44 +121,117 @@ int main() {
     window.create();
     window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Program light(NAME + ".vs", NAME + ".frag");
+    VertexArray cube;
+    ArrayBuffer cVBO;
+    cube.bind();
+        cube.buffer(cVBO)
+            .data(cubeVertices, sizeof(cubeVertices));
+        cube.attrib(0).has<Float>(3)
+            .stride(SizeOf<8, Float>).offset(0);
+        cube.attrib(1).has<Float>(3)
+            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        cube.attrib(2).has<Float>(2)
+            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    cube.unbind();
+
+    Vec3 pos1(-1.0, 1.0, 0.0);
+    Vec3 pos2(-1.0, -1.0, 0.0);
+    Vec3 pos3(1.0, -1.0, 0.0);
+    Vec3 pos4(1.0, 1.0, 0.0);
+    // texture coordinates
+    Vec2 uv1(0.0, 1.0);
+    Vec2 uv2(0.0, 0.0);
+    Vec2 uv3(1.0, 0.0);
+    Vec2 uv4(1.0, 1.0);
+    // normal vector
+    Vec3 nm(0.0, 0.0, 1.0);
+
+    // calculate tangent/bitangent vectors of both triangles
+    Vec3 tangent1, bitangent1;
+    Vec3 tangent2, bitangent2;
+    // - triangle 1
+    Vec3 edge1 = pos2 - pos1;
+    Vec3 edge2 = pos3 - pos1;
+    Vec2 deltaUV1 = uv2 - uv1;
+    Vec2 deltaUV2 = uv3 - uv1;
+
+    Float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent1 = glm::normalize(tangent1);
+
+    bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent1 = glm::normalize(bitangent1);
+
+    // - triangle 2
+    edge1 = pos3 - pos1;
+    edge2 = pos4 - pos1;
+    deltaUV1 = uv3 - uv1;
+    deltaUV2 = uv4 - uv1;
+
+    f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent2 = glm::normalize(tangent2);
+
+    bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent2 = glm::normalize(bitangent2);
+
+    Vertex quadVertices[] {
+        { pos1, nm, uv1, tangent1, bitangent1 },
+        { pos2, nm, uv2, tangent1, bitangent1 },
+        { pos3, nm, uv3, tangent1, bitangent1 },
+        { pos1, nm, uv1, tangent2, bitangent2 },
+        { pos3, nm, uv3, tangent2, bitangent2 },
+        { pos4, nm, uv4, tangent2, bitangent2 },
+    };
+
+    VertexArray quad;
+    ArrayBuffer qVBO;
+    quad.bind();
+        quad.buffer(qVBO).data(quadVertices, sizeof(quadVertices));
+        SizeT total = sizeof(Vertex);
+        quad.attrib(0).has<Float>(3).stride(total).offset(offsetof(Vertex, position));
+        quad.attrib(1).has<Float>(3).stride(total).offset(offsetof(Vertex, normal));
+        quad.attrib(2).has<Float>(2).stride(total).offset(offsetof(Vertex, texCoords));
+        quad.attrib(3).has<Float>(3).stride(total).offset(offsetof(Vertex, tangent));
+        quad.attrib(4).has<Float>(3).stride(total).offset(offsetof(Vertex, bitangent));
+    quad.unbind();
+
+    Program shader(NAME + ".vs", NAME + ".frag");
     Program lamp("lamp.vs", "lamp.frag");
 
-    VertexArray VAO;
-    ArrayBuffer VBO;
-
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        VAO.attrib(2).has<Float>(2)
-           .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    VAO.unbind();
-
-    std::vector<String> paths {
-        "res/textures/container2.png",
-        "res/textures/container2_specular.png",
+    std::vector<String> images {
+        "res/textures/bricks2.jpg",
+        "res/textures/bricks2_normal.jpg",
+        "res/textures/bricks2_disp.jpg",
+        "res/textures/wood.png",
+        "res/textures/toy_box_normal.png",
+        "res/textures/toy_box_disp.png",
     };
-    std::vector<Texture2D> textures(paths.size());
+    std::vector<Texture2D> textures(images.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
         textures[i].bind()
            .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
            .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
            .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
            .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-           .load(Image(paths[i]))
+           .load(Image(images[i]))
            .genMipmap()
        .unbind();
     }
 
-    Vec3 lightPos {1.2, 1, 2};
-
     window.loop([&]() {
         glfwPollEvents();
-        glClearColor(0, 0, 0, 1);
+        glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         static double last = glfwGetTime();
@@ -192,57 +252,57 @@ int main() {
 
         camera.update(dt);
 
-        if (!keyman.toggled[GLFW_KEY_M]) {
-            lightPos = glm::rotateY(lightPos, 0.02f);
-        }
+        static Vec3 lightPos {2, 1, 0};
+        static Vec3 lightColor {1, 1, 1};
+        if (!keyman.toggled[GLFW_KEY_M]) lightPos = glm::rotateY(lightPos, 0.02f);
+
+        static Float height_scale = 0.1;
+        if (keyman[GLFW_KEY_MINUS]) height_scale -= 0.05 * dt;
+        if (keyman[GLFW_KEY_EQUAL]) height_scale += 0.05 * dt;
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
         auto view = camera.getMatrix();
 
-        light.use();
+        static Mat4 model;
+        if (keyman.toggled[GLFW_KEY_R]) model = Mat4();
+        if (keyman.toggled[GLFW_KEY_X]) model = glm::rotate(model, 0.01f, {1, 0, 0});
+        if (keyman.toggled[GLFW_KEY_Y]) model = glm::rotate(model, 0.01f, {0, 1, 0});
+        if (keyman.toggled[GLFW_KEY_Z]) model = glm::rotate(model, 0.01f, {0, 0, 0});
 
-        Vec3 lightColor{1, 1, 1};
-        Vec3 diffuseColor = lightColor * Vec3(0.5f);
-        Vec3 ambientColor = diffuseColor * Vec3(0.2f);
-        light.uniform("light.ambient", ambientColor);
-        light.uniform("light.diffuse", diffuseColor);
-        light.uniform("light.specular", {1, 1, 1});
-        light.uniform("light.position", lightPos);
-        light.uniform("material.ambient", 0);
-        light.uniform("material.diffuse", 0);
-        light.uniform("material.specular", 1);
-        light.uniform("material.shininess", 32.0f);
+        shader.use();
+        shader.uniform("projection", projection);
+        shader.uniform("view", view);
+        shader.uniform("model", model);
+        shader.uniform("lightPos", lightPos);
+        shader.uniform("viewPos", camera.getEye());
+        shader.uniform("diffuseMap", 0);
+        shader.uniform("normalMap", 1);
+        shader.uniform("depthMap", 2);
+        shader.uniform("height_scale", height_scale);
+        shader.uniform("parallax", !keyman.toggled[GLFW_KEY_P]);
 
-        light.uniform("projection", projection);
-        light.uniform("view", view);
-
-        light.uniform("viewPos", camera.getEye());
-
-        if (!keyman.toggled[GLFW_KEY_SPACE]) {
-            textures[0].active(0);
-            textures[1].active(1);
-            VAO.bind();
-            for (int i = 0; i < 10; i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(Mat4(), cubePositions[i]);
-                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-                light.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-            VAO.unbind();
-        }
+        int idx = keyman.count[GLFW_KEY_SPACE] % (textures.size() / 3);
+        textures[idx * 3 + 0].active(0);
+        textures[idx * 3 + 1].active(1);
+        textures[idx * 3 + 2].active(2);
+        quad.bind();
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        quad.unbind();
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", view);
-        VAO.bind();
+        lamp.uniform("lightColor", lightColor);
+        lamp.use();
+        cube.bind();
+        {
             Mat4 model;
             model = glm::translate(model, lightPos);
-            model = glm::scale(model, {0.2, 0.2, 0.2});
+            model = glm::scale(model, {0.05, 0.05, 0.05});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        VAO.unbind();
+        }
+        cube.unbind();
     });
 
     glfwTerminate();

@@ -56,6 +56,7 @@ vec3 BlinnPhong(Material material, Light light) {
     // Simple attenuation
     float max_distance = 1.5;
     float distance = length(light.position - fs_in.FragPos);
+    distance = max(distance, max_distance);
     float attenuation = 1.0 / (gamma ? distance * distance : distance);
 
     vec3 result = ambient + diffuse + specular;

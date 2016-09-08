@@ -70,6 +70,10 @@ public:
         glTexParameteriv(TextureType, pname, value);
         return *this;
     }
+    const Texture& param(Enum pname, UInt value) const {
+        param(pname, static_cast<Int>(value));
+        return *this;
+    }
     const Texture& param(Enum pname, Float value) const {
         glTexParameterf(TextureType, pname, value);
         return *this;
@@ -87,11 +91,11 @@ public:
         glTexImage2D(target, 0, img.internalFormat, img.width, img.height, 0, img.pixelFormat, GL_UNSIGNED_BYTE, img.data);
         return *this;
     }
-    const Texture& multisample(Int width, Int height, Enum format, UInt samples = 1, Enum target = TextureType) const {
+    const Texture& multisample(Size width, Size height, Enum format, UInt samples = 1, Enum target = TextureType) const {
         glTexImage2DMultisample(target, samples, format, width, height, True);
         return *this;
     }
-    const Texture& empty(Int width, Int height, Enum format, Enum type = GL_UNSIGNED_BYTE, Enum target = TextureType) const {
+    const Texture& empty(Size width, Size height, Enum format, Enum type = GL_UNSIGNED_BYTE, Enum target = TextureType) const {
         glTexImage2D(target, 0, format, width, height, 0, format, type, nullptr);
         return *this;
     }

@@ -17,35 +17,43 @@ using Fixed = GLfixed;
 using Int64 = GLint64;
 using UInt64 = GLuint64;
 
+using Bool = GLboolean;
+using Size = GLsizei;
+using Enum = GLenum;
+using Intptr = GLintptr;
+using Sizeptr = GLsizeiptr;
+using Sync = GLsync;
+using Bitfield = GLbitfield;
+
 using Half = GLhalf;
 using Float = GLfloat;
 using ClampF = GLclampf;
 using Double = GLdouble;
 using ClampD = GLclampd;
 
-using Bool = GLboolean;
+using Void = GLvoid;
 using Char = GLchar;
 using UChar = GLubyte;
-using Size = GLsizei;
-using Enum = GLenum;
-
-using Void = GLvoid;
 
 using VoidPtr = Void*;
 using CharPtr = Char*;
+using UCharPtr = UChar*;
 using BytePtr = Byte*;
 using UBytePtr = UByte*;
+
+using KVoidPtr = const Void*;
+using KCharPtr = const Char*;
+using KUCharPtr = const UChar*;
+using KBytePtr = const Byte*;
+using KUBytePtr = const UByte*;
+
+const Bool True = GL_TRUE;
+const Bool False = GL_FALSE;
 
 using SizeT = std::size_t;
 using String = std::string;
 
-using KVoidPtr = const Void*;
-using KCharPtr = const Char*;
-
 using KStringRef = const String&;
-
-const Bool True = GL_TRUE;
-const Bool False = GL_FALSE;
 
 namespace internal {
     template <Enum E> struct E2T;
@@ -59,8 +67,8 @@ namespace internal {
     ExT(GL_UNSIGNED_SHORT, UShort)
     ExT(GL_INT, Int)
     ExT(GL_UNSIGNED_INT, UInt)
-    // ExT(GL_FIXED, Fixed)
-    // ExT(GL_HALF_FLOAT, Half)
+    // ExT(GL_FIXED, Fixed) // Fixed is Int
+    // ExT(GL_HALF_FLOAT, Half) // Half is Short
     ExT(GL_FLOAT, Float)
     ExT(GL_DOUBLE, Double)
 #undef ExT
