@@ -95,8 +95,8 @@ public:
         glTexImage2DMultisample(target, samples, format, width, height, True);
         return *this;
     }
-    const Texture& empty(Size width, Size height, Enum format, Enum type = GL_UNSIGNED_BYTE, Enum target = TextureType) const {
-        glTexImage2D(target, 0, format, width, height, 0, format, type, nullptr);
+    const Texture& empty(Size width, Size height, Enum internalFormat = GL_RGB, Enum format = GL_RGB, Enum type = GL_UNSIGNED_BYTE, Enum target = TextureType) const {
+        glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, nullptr);
         return *this;
     }
     const Texture& genMipmap() const {

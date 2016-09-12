@@ -160,54 +160,42 @@ int main() {
     VertexArray cube, plane, quad;
     ArrayBuffer bVBO, fVBO, qVBO;
 
-    cube.bind();
-        cube.buffer(bVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<5, Float>).offset(0);
-        cube.attrib(1).has<Float>(2)
-            .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(bVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
-    plane.bind();
-        plane.buffer(fVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        plane.attrib(0).has<Float>(3)
-             .stride(SizeOf<5, Float>).offset(0);
-        plane.attrib(1).has<Float>(2)
-             .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    plane.unbind();
+    SKY_BIND(plane) {
+        _.buffer(fVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
-    quad.bind();
-        quad.buffer(qVBO)
-            .data(quadVertices, sizeof(quadVertices));
-        quad.attrib(0).has<Float>(2)
-            .stride(SizeOf<4, Float>).offset(0);
-        quad.attrib(1).has<Float>(2)
-            .stride(SizeOf<4, Float>).offset(SizeOf<2, Float>);
-    quad.unbind();
+    SKY_BIND(quad) {
+        _.buffer(qVBO).data(quadVertices);
+        _.attrib(0).has<Float>(2).stride(SizeOf<4, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<4, Float>).offset(SizeOf<2, Float>);
+    }
 
     FrameBuffer FBO;
-    Texture2D fbt;
     RenderBuffer RBO;
-
-    fbt.bind()
-       .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-       .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-       .empty(WIDTH, HEIGHT, GL_RGB)
-    .unbind();
-
-    RBO.bind()
-       .storage(WIDTH, HEIGHT, GL_DEPTH24_STENCIL8)
-    .unbind();
-
-    FBO.bind();
-        FBO.attach(fbt, GL_COLOR_ATTACHMENT0);
-        FBO.attach(RBO, GL_DEPTH_STENCIL_ATTACHMENT);
-        if (FBO.status() != GL_FRAMEBUFFER_COMPLETE) {
+    Texture2D fbt;
+    SKY_BIND(fbt) {
+       _.param(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+       _.param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+       _.empty(WIDTH, HEIGHT, GL_RGB, GL_RGB);
+    }
+    SKY_BIND(RBO) {
+       _.storage(WIDTH, HEIGHT, GL_DEPTH24_STENCIL8);
+    }
+    SKY_BIND(FBO) {
+        _.attach(fbt, GL_COLOR_ATTACHMENT0);
+        _.attach(RBO, GL_DEPTH_STENCIL_ATTACHMENT);
+        if (_.status() != GL_FRAMEBUFFER_COMPLETE) {
             throw GLException("FBO::status", "status not complete");
         }
-    FBO.unbind();
+    }
 
     Program scene(NAME + ".vs", NAME + ".frag");
     Program screen("screen.vs", "screen.frag");
@@ -263,20 +251,20 @@ int main() {
         scene.uniform("projection", projection);
         scene.uniform("view", camera.getMatrix());
 
-        textures[1].bind();
-        plane.bind();
+        textures[1].active(0);
+        SKY_BIND(plane) {
             scene.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        plane.unbind();
-
-        textures[0].bind();
-        cube.bind();
-        for (SizeT i = 0; i < cubePositions.size(); i++) {
-            Mat4 model = glm::translate(Mat4(), cubePositions[i]);
-            scene.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        cube.unbind();
+
+        textures[0].active(0);
+        SKY_BIND(cube) {
+            for (SizeT i = 0; i < cubePositions.size(); i++) {
+                Mat4 model = glm::translate(Mat4(), cubePositions[i]);
+                scene.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
 
         if (!keyman.toggled[GLFW_KEY_SPACE])
             FBO.unbind();
@@ -293,10 +281,10 @@ int main() {
         screen.uniform("projection", projection);
         screen.uniform("view", camera.getMatrix());
 
-        fbt.bind();
-        quad.bind();
+        fbt.active(0);
+        SKY_BIND(quad) {
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        quad.unbind();
+        }
     });
 
     glfwTerminate();

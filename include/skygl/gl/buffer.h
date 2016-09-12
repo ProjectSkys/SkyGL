@@ -45,10 +45,13 @@ public:
         glBufferData(BufferType, size, dat, usage);
         return *this;
     }
+    template <typename T, SizeT N>
+    const BaseBuffer& data(T (&dat)[N], Enum usage = GL_STATIC_DRAW) const {
+        return data(static_cast<KVoidPtr>(&dat[0]), N * sizeof(T), usage);
+    }
     template <typename T>
-    const BaseBuffer& data(const std::vector<T>& v, Enum usage = GL_STATIC_DRAW) const {
-        data(static_cast<KVoidPtr>(&v[0]), v.size() * sizeof(T), usage);
-        return *this;
+    const BaseBuffer& data(const std::vector<T>& dat, Enum usage = GL_STATIC_DRAW) const {
+        return data(static_cast<KVoidPtr>(&dat[0]), dat.size() * sizeof(T), usage);
     }
     const BaseBuffer& sub(KVoidPtr dat, Sizeptr size, Intptr offset = 0) const {
         glBufferSubData(BufferType, offset, size, dat);

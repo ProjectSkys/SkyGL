@@ -148,29 +148,23 @@ int main() {
     window.create();
     window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
     Program single(NAME + ".vs", "single.frag");
 
     VertexArray box, floor;
     ArrayBuffer bVBO, fVBO;
 
-    box.bind();
-        box.buffer(bVBO)
-           .data(cubeVertices, sizeof(cubeVertices));
-        box.attrib(0).has<Float>(3)
-           .stride(SizeOf<5, Float>).offset(0);
-        box.attrib(1).has<Float>(2)
-           .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    box.unbind();
+    SKY_BIND(box) {
+        _.buffer(bVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
-    floor.bind();
-        floor.buffer(fVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        floor.attrib(0).has<Float>(3)
-             .stride(SizeOf<5, Float>).offset(0);
-        floor.attrib(1).has<Float>(2)
-             .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    floor.unbind();
+    SKY_BIND(floor) {
+        _.buffer(fVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
     std::vector<Texture2D> textures(2);
     std::vector<String> paths {
@@ -178,15 +172,14 @@ int main() {
         "res/textures/metal.png"
     };
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     window.loop([&]() {
@@ -214,30 +207,28 @@ int main() {
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
 
-        program.use();
-        program.uniform("tex", 0);
-        program.uniform("projection", projection);
-        program.uniform("view", camera.getMatrix());
+        shader.use();
+        shader.uniform("tex", 0);
+        shader.uniform("projection", projection);
+        shader.uniform("view", camera.getMatrix());
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
         textures[0].active(0);
-        box.bind();
-        for (int i = 0; i < 10; i++) {
-            Mat4 model = glm::translate(Mat4(), cubePositions[i]);
-            program.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(box) {
+            for (int i = 0; i < 10; i++) {
+                Mat4 model = glm::translate(Mat4(), cubePositions[i]);
+                shader.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        box.unbind();
 
         glStencilMask(0x00);
         textures[1].active(0);
-        floor.bind();
-        {
-            program.uniform("model", Mat4());
+        SKY_BIND(floor) {
+            shader.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-        floor.unbind();
 
         single.use();
         single.uniform("projection", projection);
@@ -247,14 +238,14 @@ int main() {
         glStencilMask(0x00);
         glDisable(GL_DEPTH_TEST);
         textures[0].active(0);
-        box.bind();
-        for (int i = 0; i < 10; i++) {
-            Mat4 model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::scale(model, Vec3(1.1));
-            single.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(box) {
+            for (int i = 0; i < 10; i++) {
+                Mat4 model = glm::translate(Mat4(), cubePositions[i]);
+                model = glm::scale(model, Vec3(1.1));
+                single.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        box.unbind();
         glStencilMask(0xFF);
         glEnable(GL_DEPTH_TEST);
     });

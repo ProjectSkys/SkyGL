@@ -185,23 +185,17 @@ int main() {
     VertexArray cube, box;
     ArrayBuffer cVBO, sVBO;
 
-    cube.bind();
-        cube.buffer(cVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(0);
-        cube.attrib(1).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        cube.attrib(2).has<Float>(2)
-            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(cVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
-    box.bind();
-        box.buffer(sVBO)
-           .data(skyboxVertices, sizeof(skyboxVertices));
-        box.attrib(0).has<Float>(3)
-           .stride(SizeOf<3, Float>).offset(0);
-    box.unbind();
+    SKY_BIND(box) {
+        _.buffer(sVBO).data(skyboxVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<3, Float>).offset(0);
+    }
 
     TextureCubeMap sky;
     std::vector<String> skyboxPaths {
@@ -212,31 +206,30 @@ int main() {
         "res/textures/skybox/back.jpg",
         "res/textures/skybox/front.jpg",
     };
-    sky.bind()
-       .param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-       .param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-       .param(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
-       .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-       .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    for (SizeT i = 0; i < skyboxPaths.size(); ++i) {
-        sky.load(Image(skyboxPaths[i]), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+    SKY_BIND(sky) {
+        _.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+         .param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+         .param(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
+         .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+         .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        for (SizeT i = 0; i < skyboxPaths.size(); ++i) {
+            _.load(Image(skyboxPaths[i]), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+        }
     }
-    sky.unbind();
 
     std::vector<String> paths {
         "res/textures/container.jpg",
     };
     std::vector<Texture2D> textures(paths.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     Model ourModel("res/objects/nanosuit/nanosuit.obj");
@@ -283,16 +276,16 @@ int main() {
             shader.uniform("textures[0].ambient", 0);
             shader.uniform("textures[0].diffuse", 1);
             textures[0].active(1);
-            cube.bind();
-            for (SizeT i = 0; i < cubePositions.size(); i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(Mat4(), cubePositions[i]);
-                model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
-                shader.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+            SKY_BIND(cube) {
+                for (SizeT i = 0; i < cubePositions.size(); i++) {
+                    Float angle = 20.0f * i;
+                    Mat4 model;
+                    model = glm::translate(Mat4(), cubePositions[i]);
+                    model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
+                    shader.uniform("model", model);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
             }
-            cube.unbind();
         }
 
         glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
@@ -304,9 +297,9 @@ int main() {
         skybox.uniform("skybox", 0);
 
         sky.active(0);
-        box.bind();
+        SKY_BIND(box) {
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        box.unbind();
+        }
 
         glDepthFunc(GL_LESS); // Set depth function back to default
 

@@ -130,12 +130,10 @@ int main() {
 
     VertexArray VAO;
     ArrayBuffer VBO;
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<3, Float>).offset(0);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<3, Float>).offset(0);
+    }
 
     Program shaders[] {
         { NAME + ".vs", "red.frag"    },
@@ -148,10 +146,10 @@ int main() {
     for (auto& s : shaders) s.binding("Matrices", 0);
 
     UniformBuffer UBO;
-    UBO.bind();
-        UBO.empty(SizeOf<2, Mat4>);
-        UBO.binding(0);
-    UBO.unbind();
+    SKY_BIND(UBO) {
+        _.empty(SizeOf<2, Mat4>);
+        _.binding(0);
+    }
 
     window.loop([&]() {
         glfwPollEvents();
@@ -184,15 +182,15 @@ int main() {
            .sub(glm::value_ptr(view), sizeof(Mat4), sizeof(Mat4))
         .unbind();
 
-        VAO.bind();
-        for (int i = 0; i < 4; i++) {
-            Mat4 model = glm::translate(Mat4(), cubePositions[i]);
-            auto& shader = shaders[i];
-            shader.use();
-            shader.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(VAO) {
+            for (int i = 0; i < 4; i++) {
+                Mat4 model = glm::translate(Mat4(), cubePositions[i]);
+                auto& shader = shaders[i];
+                shader.use();
+                shader.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        VAO.unbind();
     });
 
     glfwTerminate();

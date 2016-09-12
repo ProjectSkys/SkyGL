@@ -167,36 +167,29 @@ int main() {
     window.create();
     window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
     Program single(NAME + ".vs", "single.frag");
 
     VertexArray box, floor, board;
     ArrayBuffer bVBO, fVBO, oVBO;
 
-    box.bind();
-        box.buffer(bVBO)
-           .data(cubeVertices, sizeof(cubeVertices));
-        box.attrib(0).has<Float>(3)
-           .stride(SizeOf<5, Float>).offset(0);
-        box.attrib(1).has<Float>(2)
-           .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    box.unbind();
-    floor.bind();
-        floor.buffer(fVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        floor.attrib(0).has<Float>(3)
-             .stride(SizeOf<5, Float>).offset(0);
-        floor.attrib(1).has<Float>(2)
-             .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    floor.unbind();
-    board.bind();
-        board.buffer(oVBO)
-             .data(transparentVertices, sizeof(transparentVertices));
-        board.attrib(0).has<Float>(3)
-             .stride(SizeOf<5, Float>).offset(0);
-        board.attrib(1).has<Float>(2)
-             .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    board.unbind();
+    SKY_BIND(box) {
+        _.buffer(bVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
+
+    SKY_BIND(floor) {
+        _.buffer(fVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
+
+    SKY_BIND(board) {
+        _.buffer(oVBO).data(transparentVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
     std::vector<std::pair<String, Bool>> images {
         {"res/textures/marble.jpg", false},
@@ -247,27 +240,25 @@ int main() {
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
 
-        program.use();
-        program.uniform("tex", 0);
-        program.uniform("projection", projection);
-        program.uniform("view", camera.getMatrix());
+        shader.use();
+        shader.uniform("tex", 0);
+        shader.uniform("projection", projection);
+        shader.uniform("view", camera.getMatrix());
 
         textures[0].active(0);
-        floor.bind();
-        {
-            program.uniform("model", Mat4());
+        SKY_BIND(floor) {
+            shader.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-        floor.unbind();
 
         textures[1].active(0);
-        box.bind();
-        for (int i = 0; i < 10; i++) {
-            Mat4 model = glm::translate(Mat4(), cubePositions[i]);
-            program.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(box) {
+            for (int i = 0; i < 10; i++) {
+                Mat4 model = glm::translate(Mat4(), cubePositions[i]);
+                shader.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        box.unbind();
 
         auto eye = camera.getEye();
         std::sort(grassPositions.begin(), grassPositions.end(), [&eye](KVec3Ref a, KVec3Ref b) {
@@ -277,13 +268,13 @@ int main() {
         });
 
         textures[2 + keyman.toggled[GLFW_KEY_SPACE]].active(0);
-        board.bind();
-        for (SizeT i = 0; i < grassPositions.size(); i++) {
-            Mat4 model = glm::translate(Mat4(), grassPositions[i]);
-            program.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(board) {
+            for (SizeT i = 0; i < grassPositions.size(); i++) {
+                Mat4 model = glm::translate(Mat4(), grassPositions[i]);
+                shader.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        board.unbind();
 
     });
 

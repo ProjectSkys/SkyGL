@@ -157,61 +157,53 @@ int main() {
 
     VertexArray cube;
     ArrayBuffer cVBO;
-    cube.bind();
-        cube.buffer(cVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(0);
-        cube.attrib(1).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        cube.attrib(2).has<Float>(2)
-            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(cVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     VertexArray plane;
     ArrayBuffer pVBO;
-    plane.bind();
-        plane.buffer(pVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        plane.attrib(0).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(0);
-        plane.attrib(1).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        plane.attrib(2).has<Float>(2)
-             .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    plane.unbind();
+    SKY_BIND(plane) {
+        _.buffer(pVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     VertexArray quad;
     ArrayBuffer qVBO;
-    quad.bind();
-        quad.buffer(qVBO).data(quadVertices, sizeof(quadVertices));
-        quad.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
-        quad.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    quad.unbind();
+    SKY_BIND(quad) {
+        _.buffer(qVBO).data(quadVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
     const UInt SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     Float borderColor[] {1.0f, 1.0f, 1.0f, 1.0f};
     FrameBuffer FBO;
     Texture2D depthMap;
-    depthMap.bind()
-       .param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER)
-       .param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
-       .param(GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-       .param(GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-       .param(GL_TEXTURE_BORDER_COLOR, borderColor)
-       .empty(SHADOW_WIDTH, SHADOW_HEIGHT, GL_DEPTH_COMPONENT, GL_FLOAT)
-    .unbind();
-    FBO.bind();
-        FBO.attach(depthMap, GL_DEPTH_ATTACHMENT);
+    SKY_BIND(depthMap) {
+       _.param(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+       _.param(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+       _.param(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+       _.param(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+       _.param(GL_TEXTURE_BORDER_COLOR, borderColor);
+       _.empty(SHADOW_WIDTH, SHADOW_HEIGHT, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+    }
+    SKY_BIND(FBO) {
+        _.attach(depthMap, GL_DEPTH_ATTACHMENT);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
-    FBO.unbind();
+    }
 
     std::vector<std::tuple<String, bool, bool>> images {
-        { "res/textures/wood.png",                false, true  },
-        { "res/textures/wood_specular.png",       false, false },
-        { "res/textures/container2.png",          false, true  },
-        { "res/textures/container2_specular.png", false, false },
+        std::make_tuple("res/textures/wood.png",                false, true ),
+        std::make_tuple("res/textures/wood_specular.png",       false, false),
+        std::make_tuple("res/textures/container2.png",          false, true ),
+        std::make_tuple("res/textures/container2_specular.png", false, false),
     };
     std::vector<Texture2D> textures(images.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
@@ -242,23 +234,23 @@ int main() {
         scene.use();
         textures[0].active(0);
         textures[1].active(1);
-        plane.bind();
+        SKY_BIND(plane) {
             scene.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        plane.unbind();
+        }
         if (!keyman.toggled[GLFW_KEY_SPACE]) {
             textures[2].active(0);
             textures[3].active(1);
-            cube.bind();
-            for (int i = 0; i < 10; i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-                scene.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+            SKY_BIND(cube) {
+                for (int i = 0; i < 10; i++) {
+                    Float angle = 20.0f * i;
+                    Mat4 model;
+                    model = glm::translate(model, cubePositions[i]);
+                    model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+                    scene.uniform("model", model);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
             }
-            cube.unbind();
         }
     };
 
@@ -300,10 +292,10 @@ int main() {
         depth.uniform("lightSpaceMatrix", lightSpaceMatrix);
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        FBO.bind();
+        SKY_BIND(FBO) {
             glClear(GL_DEPTH_BUFFER_BIT);
             drawScene(depth);
-        FBO.unbind();
+        }
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
         auto view = camera.getMatrix();
@@ -338,13 +330,13 @@ int main() {
         lamp.uniform("view", view);
         lamp.uniform("lightColor", lightColor);
         lamp.use();
-        cube.bind();
+        SKY_BIND(cube) {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.2, 0.2, 0.2});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        cube.unbind();
+        }
 
         if (keyman.toggled[GLFW_KEY_B]) {
             debug.use();
@@ -352,9 +344,9 @@ int main() {
             debug.uniform("near_plane", near_plane);
             debug.uniform("far_plane", far_plane);
             depthMap.active(0);
-            quad.bind();
+            SKY_BIND(quad) {
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            quad.unbind();
+            }
         }
     });
 

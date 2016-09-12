@@ -142,16 +142,12 @@ int main() {
     VertexArray VAO;
     ArrayBuffer VBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        VAO.attrib(2).has<Float>(2)
-           .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     std::vector<Texture2D> textures(2);
     std::vector<String> paths {
@@ -159,15 +155,14 @@ int main() {
         "res/textures/container2_specular.png"
     };
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     window.loop([&]() {
@@ -227,16 +222,16 @@ int main() {
 
         light.uniform("viewPos", camera.getEye());
 
-        VAO.bind();
-        for (int i = 0; i < 10; i++) {
-            Float angle = 20.0f * i;
-            Mat4 model;
-            model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
-            light.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(VAO) {
+            for (int i = 0; i < 10; i++) {
+                Float angle = 20.0f * i;
+                Mat4 model;
+                model = glm::translate(Mat4(), cubePositions[i]);
+                model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
+                light.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        VAO.unbind();
     });
 
     glfwTerminate();

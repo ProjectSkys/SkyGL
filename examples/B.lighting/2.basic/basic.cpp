@@ -9,8 +9,7 @@ const String UNIT = "lighting";
 const String NAME = "basic";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
-GLfloat vertices[] = {
+Float vertices[] {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -141,14 +140,11 @@ int main() {
     VertexArray VAO;
     ArrayBuffer VBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<6, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
+    }
 
     Vec3 lightPos{1.2, 1, 2};
 
@@ -186,29 +182,27 @@ int main() {
         light.uniform("viewPos", camera.getEye());
         light.uniform("objectColor", {1.0, 0.5, 0.31});
         light.uniform("lightColor", {1.0, 0.5, 1});
-        VAO.bind();
-        for (int i = 0; i < 10; i++) {
-            Float angle = 20.0f * i;
-            Mat4 model;
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-            light.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(VAO) {
+            for (int i = 0; i < 10; i++) {
+                Float angle = 20.0f * i;
+                Mat4 model;
+                model = glm::translate(model, cubePositions[i]);
+                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+                light.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        VAO.unbind();
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", camera.getMatrix());
-        VAO.bind();
-        {
+        SKY_BIND(VAO) {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.2, 0.2, 0.2});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        VAO.unbind();
     });
 
     glfwTerminate();

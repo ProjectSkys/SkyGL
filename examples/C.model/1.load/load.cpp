@@ -76,7 +76,7 @@ int main() {
     window.create();
     window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
 
     std::vector<String> paths {
         "res/objects/nanosuit/nanosuit.obj",
@@ -125,7 +125,7 @@ int main() {
 
         camera.update(dt);
 
-        program.use();
+        shader.use();
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
         auto view = camera.getMatrix();
@@ -136,12 +136,12 @@ int main() {
 
         int idx = keyman.count[GLFW_KEY_M] % models.size();
 
-        program.uniform("projection", projection);
-        program.uniform("view", view);
-        program.uniform("model", fixes[idx] * model);
-        program.uniform("select", keyman.count[GLFW_KEY_SPACE]);
+        shader.uniform("projection", projection);
+        shader.uniform("view", view);
+        shader.uniform("model", fixes[idx] * model);
+        shader.uniform("select", keyman.count[GLFW_KEY_SPACE]);
 
-        models[idx].draw(program, 1, 2);
+        models[idx].draw(shader, 1, 2);
     });
 
     glfwTerminate();

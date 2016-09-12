@@ -139,14 +139,11 @@ int main() {
     VertexArray VAO;
     ArrayBuffer VBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<6, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
+    }
 
     Vec3 lightPos{1.2, 1, 2};
 
@@ -198,29 +195,27 @@ int main() {
         light.uniform("projection", projection);
         light.uniform("view", camera.getMatrix());
         light.uniform("viewPos", camera.getEye());
-        VAO.bind();
-        for (int i = 0; i < 10; i++) {
-            Float angle = 20.0f * i;
-            Mat4 model;
-            model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
-            light.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(VAO) {
+            for (int i = 0; i < 10; i++) {
+                Float angle = 20.0f * i;
+                Mat4 model;
+                model = glm::translate(Mat4(), cubePositions[i]);
+                model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
+                light.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        VAO.unbind();
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", camera.getMatrix());
-        VAO.bind();
-        {
+        SKY_BIND(VAO) {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.2, 0.2, 0.2});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        VAO.unbind();
     });
 
     glfwTerminate();

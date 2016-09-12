@@ -49,9 +49,9 @@ public:
     }
     template <typename Func>
     void setupVAO(Func&& f) {
-        VAO.bind();
-        f(VAO);
-        VAO.unbind();
+        SKY_BIND(VAO) {
+            f(_);
+        }
     }
     void draw(KProgramRef shader, UInt instance = 1, UInt id = 0) {
         for (auto& p : textures) {
@@ -64,13 +64,13 @@ public:
                 id++;
             }
         }
-        VAO.bind();
-        if (instance == 1) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        } else {
-            glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instance);
+        SKY_BIND(VAO) {
+            if (instance == 1) {
+                glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+            } else {
+                glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instance);
+            }
         }
-        VAO.unbind();
         for (auto& p : textures) {
             for (auto& t : p.second) {
                 t->unbind();
@@ -79,20 +79,15 @@ public:
     }
 private:
     void setup() {
-        VAO.bind();
-        VAO.buffer(VBO).data(vertices);
-        VAO.buffer(EBO).data(indices);
-        VAO.attrib(0).has<Float>(3).stride(sizeof(Vertex))
-           .offset(offsetof(Vertex, position));
-        VAO.attrib(1).has<Float>(3).stride(sizeof(Vertex))
-           .offset(offsetof(Vertex, normal));
-        VAO.attrib(2).has<Float>(2).stride(sizeof(Vertex))
-           .offset(offsetof(Vertex, texCoords));
-        VAO.attrib(3).has<Float>(3).stride(sizeof(Vertex))
-           .offset(offsetof(Vertex, tangent));
-        VAO.attrib(4).has<Float>(3).stride(sizeof(Vertex))
-           .offset(offsetof(Vertex, bitangent));
-        VAO.unbind();
+        SKY_BIND(VAO) {
+            _.buffer(EBO).data(indices);
+            _.buffer(VBO).data(vertices);
+            _.attrib(0).has<Float>(3).stride(sizeof(Vertex)).offset(offsetof(Vertex, position));
+            _.attrib(1).has<Float>(3).stride(sizeof(Vertex)).offset(offsetof(Vertex, normal));
+            _.attrib(2).has<Float>(2).stride(sizeof(Vertex)).offset(offsetof(Vertex, texCoords));
+            _.attrib(3).has<Float>(3).stride(sizeof(Vertex)).offset(offsetof(Vertex, tangent));
+            _.attrib(4).has<Float>(3).stride(sizeof(Vertex)).offset(offsetof(Vertex, bitangent));
+        }
     }
 };
 

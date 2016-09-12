@@ -153,27 +153,19 @@ int main() {
     VertexArray cube, plane;
     ArrayBuffer cVBO, pVBO;
 
-    cube.bind();
-        cube.buffer(cVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(0);
-        cube.attrib(1).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        cube.attrib(2).has<Float>(2)
-            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(cVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
-    plane.bind();
-        plane.buffer(pVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        plane.attrib(0).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(0);
-        plane.attrib(1).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        plane.attrib(2).has<Float>(2)
-             .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    plane.unbind();
+    SKY_BIND(plane) {
+        _.buffer(pVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     std::vector<String> paths {
         "res/textures/wood.png",
@@ -183,15 +175,14 @@ int main() {
     };
     std::vector<Texture2D> textures(paths.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     Vec3 lightPos {1.2, 1, 2};
@@ -247,37 +238,37 @@ int main() {
 
         textures[0].active(0);
         textures[1].active(1);
-        plane.bind();
+        SKY_BIND(plane) {
             light.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        plane.unbind();
+        }
 
         if (!keyman.toggled[GLFW_KEY_SPACE]) {
             textures[2].active(0);
             textures[3].active(1);
-            cube.bind();
-            for (int i = 0; i < 10; i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-                light.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+            SKY_BIND(cube) {
+                for (int i = 0; i < 10; i++) {
+                    Float angle = 20.0f * i;
+                    Mat4 model;
+                    model = glm::translate(model, cubePositions[i]);
+                    model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+                    light.uniform("model", model);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
             }
-            cube.unbind();
         }
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", view);
         lamp.uniform("lightColor", lightColor);
-        cube.bind();
+        SKY_BIND(cube) {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.2, 0.2, 0.2});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        cube.unbind();
+        }
 
     });
 

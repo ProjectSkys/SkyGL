@@ -49,7 +49,7 @@ int main() {
 
     window.create();
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
 
     // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
@@ -112,14 +112,11 @@ int main() {
     VertexArray VAO;
     ArrayBuffer VBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<5, Float>).offset(0);
-        VAO.attrib(2).has<Float>(2)
-           .stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(2).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<3, Float>);
+    }
 
     std::vector<Texture2D> textures(2);
     std::vector<String> paths {
@@ -127,15 +124,14 @@ int main() {
         "res/textures/awesomeface.png"
     };
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     window.loop([&]() {
@@ -145,26 +141,26 @@ int main() {
 
         for (SizeT i = 0; i < textures.size(); ++i) {
             textures[i].active(i);
-            program.uniform("tex" + std::to_string(i), i);
+            shader.uniform("tex" + std::to_string(i), i);
         }
 
-        program.use();
+        shader.use();
 
         auto projection = glm::perspective(45.0f, window.getAspect(), 0.1f, 100.0f);
         auto view = glm::translate(Mat4(), Vec3(0.0f, 0.0f, -3.0f));
 
-        program.uniform("projection", projection);
-        program.uniform("view", view);
+        shader.uniform("projection", projection);
+        shader.uniform("view", view);
 
-        VAO.bind();
-        for (int i = 0; i < 10; i++) {
-            Float angle = 20.0f * i;
-            auto model = glm::translate(Mat4(), cubePositions[i]);
-            model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
-            program.uniform("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(VAO) {
+            for (int i = 0; i < 10; i++) {
+                Float angle = 20.0f * i;
+                auto model = glm::translate(Mat4(), cubePositions[i]);
+                model = glm::rotate(model, angle, Vec3(1.0f, 0.3f, 0.5f));
+                shader.uniform("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        VAO.unbind();
     });
 
     glfwTerminate();

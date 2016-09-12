@@ -165,33 +165,25 @@ int main() {
     VertexArray cube, plane;
     ArrayBuffer cVBO, pVBO;
 
-    cube.bind();
-        cube.buffer(cVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(0);
-        cube.attrib(1).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        cube.attrib(2).has<Float>(2)
-            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(cVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
-    plane.bind();
-        plane.buffer(pVBO)
-             .data(planeVertices, sizeof(planeVertices));
-        plane.attrib(0).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(0);
-        plane.attrib(1).has<Float>(3)
-             .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        plane.attrib(2).has<Float>(2)
-             .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    plane.unbind();
+    SKY_BIND(plane) {
+        _.buffer(pVBO).data(planeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     std::vector<std::tuple<String, bool, bool>> images {
-        { "res/textures/wood.png",                false, true  },
-        { "res/textures/wood_specular.png",       false, false },
-        { "res/textures/container2.png",          false, true  },
-        { "res/textures/container2_specular.png", false, false },
+        std::make_tuple("res/textures/wood.png",                false, true ),
+        std::make_tuple("res/textures/wood_specular.png",       false, false),
+        std::make_tuple("res/textures/container2.png",          false, true ),
+        std::make_tuple("res/textures/container2_specular.png", false, false),
     };
     std::vector<Texture2D> textures(images.size());
     for (SizeT i = 0; i < textures.size(); ++i) {
@@ -266,39 +258,39 @@ int main() {
 
         textures[0].active(0);
         textures[0].active(1);
-        plane.bind();
+        SKY_BIND(plane) {
             light.uniform("model", Mat4());
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        plane.unbind();
+        }
 
         if (keyman.toggled[GLFW_KEY_SPACE]) {
             textures[2].active(0);
             textures[3].active(1);
-            cube.bind();
-            for (int i = 0; i < 10; i++) {
-                Float angle = 20.0f * i;
-                Mat4 model;
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
-                light.uniform("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+            SKY_BIND(cube) {
+                for (int i = 0; i < 10; i++) {
+                    Float angle = 20.0f * i;
+                    Mat4 model;
+                    model = glm::translate(model, cubePositions[i]);
+                    model = glm::rotate(model, angle, {1.0f, 0.3f, 0.5f});
+                    light.uniform("model", model);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
             }
-            cube.unbind();
         }
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", view);
-        cube.bind();
-        for (auto& l : lights) {
-            Mat4 model;
-            model = glm::translate(model, l.position);
-            model = glm::scale(model, {0.2, 0.2, 0.2});
-            lamp.uniform("model", model);
-            lamp.uniform("lightColor", l.color);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        SKY_BIND(cube) {
+            for (auto& l : lights) {
+                Mat4 model;
+                model = glm::translate(model, l.position);
+                model = glm::scale(model, {0.2, 0.2, 0.2});
+                lamp.uniform("model", model);
+                lamp.uniform("lightColor", l.color);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
         }
-        cube.unbind();
 
     });
 

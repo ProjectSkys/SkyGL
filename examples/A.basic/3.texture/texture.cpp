@@ -47,9 +47,8 @@ int main() {
 
     window.create();
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
 
-    // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
         // Positions          // Colors           // Texture Coords
          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
@@ -66,18 +65,13 @@ int main() {
     ArrayBuffer VBO;
     ElementBuffer EBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.buffer(EBO)
-           .data(indices, sizeof(indices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        VAO.attrib(2).has<Float>(2)
-           .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(EBO).data(indices);
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     std::vector<Texture2D> textures(2);
     std::vector<String> paths {
@@ -85,15 +79,14 @@ int main() {
         "res/textures/awesomeface.png"
     };
     for (SizeT i = 0; i < textures.size(); ++i) {
-        textures[i]
-            .bind()
-               .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
-               .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
-               .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-               .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-               .load(Image(paths[i]))
-               .genMipmap()
-           .unbind();
+        textures[i].bind()
+           .param(GL_TEXTURE_WRAP_S, GL_REPEAT)
+           .param(GL_TEXTURE_WRAP_T, GL_REPEAT)
+           .param(GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+           .param(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+           .load(Image(paths[i]))
+           .genMipmap()
+       .unbind();
     }
 
     window.loop([&]() {
@@ -103,12 +96,12 @@ int main() {
 
         for (SizeT i = 0; i < textures.size(); ++i) {
             textures[i].active(i);
-            program.uniform("tex" + std::to_string(i), i);
+            shader.uniform("tex" + std::to_string(i), i);
         }
-        program.use();
-        VAO.bind();
+        shader.use();
+        SKY_BIND(VAO) {
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        VAO.unbind();
+        }
     });
 
     glfwTerminate();

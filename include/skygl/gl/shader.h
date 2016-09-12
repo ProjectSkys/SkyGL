@@ -181,8 +181,8 @@ public:
         }
         return *this;
     }
-    template <typename T, size_t N>
-    const Program& uniform(KStringRef name, T objs[N]) const {
+    template <typename T, SizeT N>
+    const Program& uniform(KStringRef name, T (&objs)[N]) const {
         return uniform(name, objs, N);
     }
     template <typename T>

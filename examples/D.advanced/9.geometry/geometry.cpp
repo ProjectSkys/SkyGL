@@ -68,14 +68,11 @@ int main() {
 
     VertexArray VAO;
     ArrayBuffer VBO;
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(points, sizeof(points));
-        VAO.attrib(0).has<Float>(2)
-           .stride(SizeOf<5, Float>).offset(0);
-        VAO.attrib(1).has<Float>(2)
-           .stride(SizeOf<5, Float>).offset(SizeOf<2, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(points);
+        _.attrib(0).has<Float>(2).stride(SizeOf<5, Float>).offset(0);
+        _.attrib(1).has<Float>(2).stride(SizeOf<5, Float>).offset(SizeOf<2, Float>);
+    }
 
     Program shader(NAME + ".vs", NAME + ".frag", NAME + ".gs");
 
@@ -86,9 +83,9 @@ int main() {
 
         shader.use();
 
-        VAO.bind();
+        SKY_BIND(VAO) {
             glDrawArrays(GL_POINTS, 0, 4);
-        VAO.unbind();
+        }
 
     });
 

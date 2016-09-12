@@ -46,9 +46,8 @@ int main() {
 
     window.create();
 
-    Program program(NAME + ".vs", NAME + ".frag");
+    Program shader(NAME + ".vs", NAME + ".frag");
 
-    // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
         // Positions       // Colors
         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Right
@@ -59,26 +58,22 @@ int main() {
     VertexArray VAO;
     ArrayBuffer VBO;
 
-    VAO.bind();
-        VAO.buffer(VBO)
-           .data(vertices, sizeof(vertices));
-        VAO.attrib(0).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(0);
-        VAO.attrib(1).has<Float>(3)
-           .stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
-    VAO.unbind();
+    SKY_BIND(VAO) {
+        _.buffer(VBO).data(vertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<6, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<6, Float>).offset(SizeOf<3, Float>);
+    }
 
     window.loop([&]() {
         glfwPollEvents();
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        program.use();
-        VAO.bind();
+        shader.use();
+        SKY_BIND(VAO) {
             glDrawArrays(GL_TRIANGLES, 0, 3);
-        VAO.unbind();
+        }
     });
 
     glfwTerminate();
-    return 0;
 }

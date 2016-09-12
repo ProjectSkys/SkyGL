@@ -6,7 +6,7 @@
 using namespace sky::gl;
 
 const String UNIT = "lighting2";
-const String NAME = "parallex";
+const String NAME = "parallax";
 const UInt WIDTH = 800, HEIGHT = 600;
 
 Float cubeVertices[] {
@@ -123,16 +123,12 @@ int main() {
 
     VertexArray cube;
     ArrayBuffer cVBO;
-    cube.bind();
-        cube.buffer(cVBO)
-            .data(cubeVertices, sizeof(cubeVertices));
-        cube.attrib(0).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(0);
-        cube.attrib(1).has<Float>(3)
-            .stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
-        cube.attrib(2).has<Float>(2)
-            .stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
-    cube.unbind();
+    SKY_BIND(cube) {
+        _.buffer(cVBO).data(cubeVertices);
+        _.attrib(0).has<Float>(3).stride(SizeOf<8, Float>).offset(0);
+        _.attrib(1).has<Float>(3).stride(SizeOf<8, Float>).offset(SizeOf<3, Float>);
+        _.attrib(2).has<Float>(2).stride(SizeOf<8, Float>).offset(SizeOf<6, Float>);
+    }
 
     Vec3 pos1(-1.0, 1.0, 0.0);
     Vec3 pos2(-1.0, -1.0, 0.0);
@@ -196,15 +192,15 @@ int main() {
 
     VertexArray quad;
     ArrayBuffer qVBO;
-    quad.bind();
-        quad.buffer(qVBO).data(quadVertices, sizeof(quadVertices));
+    SKY_BIND(quad) {
+        _.buffer(qVBO).data(quadVertices);
         SizeT total = sizeof(Vertex);
-        quad.attrib(0).has<Float>(3).stride(total).offset(offsetof(Vertex, position));
-        quad.attrib(1).has<Float>(3).stride(total).offset(offsetof(Vertex, normal));
-        quad.attrib(2).has<Float>(2).stride(total).offset(offsetof(Vertex, texCoords));
-        quad.attrib(3).has<Float>(3).stride(total).offset(offsetof(Vertex, tangent));
-        quad.attrib(4).has<Float>(3).stride(total).offset(offsetof(Vertex, bitangent));
-    quad.unbind();
+        _.attrib(0).has<Float>(3).stride(total).offset(offsetof(Vertex, position));
+        _.attrib(1).has<Float>(3).stride(total).offset(offsetof(Vertex, normal));
+        _.attrib(2).has<Float>(2).stride(total).offset(offsetof(Vertex, texCoords));
+        _.attrib(3).has<Float>(3).stride(total).offset(offsetof(Vertex, tangent));
+        _.attrib(4).has<Float>(3).stride(total).offset(offsetof(Vertex, bitangent));
+    }
 
     Program shader(NAME + ".vs", NAME + ".frag");
     Program lamp("lamp.vs", "lamp.frag");
@@ -285,24 +281,22 @@ int main() {
         textures[idx * 3 + 0].active(0);
         textures[idx * 3 + 1].active(1);
         textures[idx * 3 + 2].active(2);
-        quad.bind();
+        SKY_BIND(quad) {
             glDrawArrays(GL_TRIANGLES, 0, 6);
-        quad.unbind();
+        }
 
         lamp.use();
         lamp.uniform("projection", projection);
         lamp.uniform("view", view);
         lamp.uniform("lightColor", lightColor);
         lamp.use();
-        cube.bind();
-        {
+        SKY_BIND(cube) {
             Mat4 model;
             model = glm::translate(model, lightPos);
             model = glm::scale(model, {0.05, 0.05, 0.05});
             lamp.uniform("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        cube.unbind();
     });
 
     glfwTerminate();
