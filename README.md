@@ -1,6 +1,8 @@
 
 # SkyGL
 
+A modern C++ wrapper of OpenGL.
+
 ## Dependencies
 
 - GLFW3
