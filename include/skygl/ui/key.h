@@ -1,6 +1,6 @@
 #pragma once
 
-#include "skygl/basic/common.h"
+#include <skygl/basic/common.h>
 
 NS_SKY_GL_BEG
 

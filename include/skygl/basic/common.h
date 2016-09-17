@@ -1,6 +1,6 @@
 #pragma once
 
-#include "skygl/basic/config.h"
+#include <skygl/basic/config.h>
 
 #include <zlog.h>
 

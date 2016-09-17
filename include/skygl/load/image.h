@@ -1,8 +1,8 @@
 #pragma once
 
-#include "skygl/basic/common.h"
-#include "skygl/basic/types.h"
-#include "skygl/basic/error.h"
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
 
 #include <boost/noncopyable.hpp>
 

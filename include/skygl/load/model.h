@@ -1,13 +1,13 @@
 #pragma once
 
-#include "skygl/basic/common.h"
-#include "skygl/basic/types.h"
-#include "skygl/basic/error.h"
-#include "skygl/calc/math.h"
-#include "skygl/gl/gl.h"
-#include "skygl/gl/buffer.h"
-#include "skygl/gl/shader.h"
-#include "skygl/gl/texture.h"
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
+#include <skygl/basic/error.h>
+#include <skygl/calc/math.h>
+#include <skygl/gl/gl.h>
+#include <skygl/gl/buffer.h>
+#include <skygl/gl/shader.h>
+#include <skygl/gl/texture.h>
 
 #include <vector>
 

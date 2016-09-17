@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skygl/basic/common.h"
-#include "skygl/basic/types.h"
+#include <skygl/basic/common.h>
+#include <skygl/basic/types.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
