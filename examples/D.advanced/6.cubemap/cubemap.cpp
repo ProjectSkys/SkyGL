@@ -9,7 +9,7 @@ const String UNIT = "advanced";
 const String NAME = "cubemap";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-GLfloat cubeVertices[] {
+Float cubeVertices[] {
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,

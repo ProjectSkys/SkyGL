@@ -9,7 +9,6 @@ const String UNIT = "basic";
 const String NAME = "glsl";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
 Float vertices[] {
     -0.5f, -0.5f, -0.5f,
      0.5f, -0.5f, -0.5f,

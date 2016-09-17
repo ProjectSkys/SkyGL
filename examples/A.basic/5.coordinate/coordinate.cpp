@@ -51,7 +51,6 @@ int main() {
 
     Program shader(NAME + ".vs", NAME + ".frag");
 
-    // Set up vertex data (and buffer(s)) and attribute pointers
     Float vertices[] {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,

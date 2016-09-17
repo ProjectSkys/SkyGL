@@ -9,8 +9,7 @@ const String UNIT = "lighting";
 const String NAME = "caster";
 const UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
-GLfloat vertices[] = {
+Float vertices[] {
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,

@@ -12,7 +12,6 @@ const UInt SAMPLES = 4;
 
 UInt WIDTH = 800, HEIGHT = 600;
 
-// Set up vertex data (and buffer(s)) and attribute pointers
 Float cubeVertices[] {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
