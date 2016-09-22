@@ -113,6 +113,7 @@ public:
     }
     void destroy() {
         glfwDestroyWindow(_window);
+        _window = nullptr;
     }
     bool running() {
         return !glfwWindowShouldClose(_window);
